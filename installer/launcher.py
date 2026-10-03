@@ -131,6 +131,15 @@ class _JobObject:
         self._job = None
         self._kernel32 = None
         kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+        kernel32.CreateJobObjectW.restype = wintypes.HANDLE
+        kernel32.CreateJobObjectW.argtypes = [wintypes.LPVOID, wintypes.LPCWSTR]
+        kernel32.SetInformationJobObject.argtypes = [
+            wintypes.HANDLE,
+            ctypes.c_int,
+            wintypes.LPVOID,
+            wintypes.DWORD,
+        ]
+        kernel32.AssignProcessToJobObject.argtypes = [wintypes.HANDLE, wintypes.HANDLE]
 
         class IO_COUNTERS(ctypes.Structure):
             _fields_ = [
@@ -169,7 +178,6 @@ class _JobObject:
         if not handle:
             log.warning("CreateJobObject falhou; sem garantia de limpeza do app.exe")
             return
-
         info = JOBOBJECT_EXTENDED_LIMIT_INFORMATION()
         info.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
         if not kernel32.SetInformationJobObject(
@@ -182,13 +190,23 @@ class _JobObject:
         self._job = handle
         self._kernel32 = kernel32
 
-    def assign(self, process_handle: int) -> None:
-        if self._job:
-            self._kernel32.AssignProcessToJobObject(self._job, process_handle)
+    def assign(self, process: subprocess.Popen) -> None:
+        handle = getattr(process, "_handle", None)
+        if not self._job or handle is None:
+            return
+        try:
+            if not self._kernel32.AssignProcessToJobObject(self._job, int(handle)):
+                log.warning(
+                    "AssignProcessToJobObject falhou (erro %s)", ctypes.get_last_error()
+                )
+        except (OSError, TypeError, ValueError) as exc:
+            log.warning("não foi possível associar o app.exe ao job: %s", exc)
 
 
 def acquire_single_instance() -> bool:
     kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.CreateMutexW.restype = wintypes.HANDLE
+    kernel32.CreateMutexW.argtypes = [wintypes.LPVOID, wintypes.BOOL, wintypes.LPCWSTR]
     handle = kernel32.CreateMutexW(None, False, MUTEX_NAME)
     if not handle:
         return True
@@ -212,7 +230,7 @@ class PROCESSENTRY32W(ctypes.Structure):
         ("dwSize", wintypes.DWORD),
         ("cntUsage", wintypes.DWORD),
         ("th32ProcessID", wintypes.DWORD),
-        ("th32DefaultHeapID", ctypes.POINTER(ctypes.c_ulong)),
+        ("th32DefaultHeapID", ctypes.c_size_t),
         ("th32ModuleID", wintypes.DWORD),
         ("cntThreads", wintypes.DWORD),
         ("th32ParentProcessID", wintypes.DWORD),
@@ -222,10 +240,41 @@ class PROCESSENTRY32W(ctypes.Structure):
     ]
 
 
-def _process_paths() -> list[tuple[int, str]]:
+def _kernel32():
     kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
+    kernel32.CreateToolhelp32Snapshot.restype = wintypes.HANDLE
+    kernel32.CreateToolhelp32Snapshot.argtypes = [wintypes.DWORD, wintypes.DWORD]
+    kernel32.Process32FirstW.argtypes = [wintypes.HANDLE, ctypes.POINTER(PROCESSENTRY32W)]
+    kernel32.Process32NextW.argtypes = [wintypes.HANDLE, ctypes.POINTER(PROCESSENTRY32W)]
+    kernel32.OpenProcess.restype = wintypes.HANDLE
+    kernel32.OpenProcess.argtypes = [wintypes.DWORD, wintypes.BOOL, wintypes.DWORD]
+    kernel32.QueryFullProcessImageNameW.argtypes = [
+        wintypes.HANDLE,
+        wintypes.DWORD,
+        wintypes.LPWSTR,
+        ctypes.POINTER(wintypes.DWORD),
+    ]
+    kernel32.TerminateProcess.argtypes = [wintypes.HANDLE, wintypes.UINT]
+    kernel32.CloseHandle.argtypes = [wintypes.HANDLE]
+    kernel32.GetLongPathNameW.argtypes = [wintypes.LPCWSTR, wintypes.LPWSTR, wintypes.DWORD]
+    return kernel32
+
+
+def _canonical(path: str) -> str:
+    """Forma comparável de um caminho (expande nomes 8.3 como ISAACF~1)."""
+    kernel32 = _kernel32()
+    size = kernel32.GetLongPathNameW(path, None, 0)
+    if size:
+        buffer = ctypes.create_unicode_buffer(size)
+        if kernel32.GetLongPathNameW(path, buffer, size):
+            path = buffer.value
+    return os.path.normcase(os.path.abspath(path))
+
+
+def _process_paths() -> list[tuple[int, str]]:
+    kernel32 = _kernel32()
     snapshot = kernel32.CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)
-    if snapshot == -1:
+    if snapshot == wintypes.HANDLE(-1).value:
         return []
 
     found: list[tuple[int, str]] = []
@@ -261,11 +310,15 @@ def _image_path(kernel32, pid: int) -> str | None:
 
 def terminate_by_paths(paths: set[str]) -> int:
     """Termina todos os processos cujo executável esteja em ``paths``."""
-    kernel32 = ctypes.WinDLL("kernel32", use_last_error=True)
-    wanted = {os.path.normcase(os.path.abspath(p)) for p in paths}
+    kernel32 = _kernel32()
+    wanted = {_canonical(p) for p in paths}
+    wanted_names = {os.path.basename(p).lower() for p in paths}
+
     killed = 0
     for pid, path in _process_paths():
-        if os.path.normcase(os.path.abspath(path)) not in wanted:
+        if os.path.basename(path).lower() not in wanted_names:
+            continue
+        if _canonical(path) not in wanted:
             continue
         handle = kernel32.OpenProcess(PROCESS_TERMINATE, False, pid)
         if handle:
@@ -289,8 +342,21 @@ class _CrxHandler(http.server.BaseHTTPRequestHandler):
     crx_dir: Path = Path(".")
 
     def do_GET(self) -> None:  # noqa: N802 (API do http.server)
+        self._serve()
+
+    def do_HEAD(self) -> None:  # noqa: N802
+        self._serve(body=False)
+
+    def do_POST(self) -> None:  # noqa: N802
+        # O Chrome faz POST (Omaha) ao update_url, com o pedido no corpo.
+        length = int(self.headers.get("Content-Length") or 0)
+        if length:
+            self.rfile.read(length)
+        self._serve()
+
+    def _serve(self, body: bool = True) -> None:
         name = self.path.split("?", 1)[0].rsplit("/", 1)[-1]
-        if name not in ("updates.xml",) and not name.endswith(".crx"):
+        if name != "updates.xml" and not name.endswith(".crx"):
             self.send_error(404, "Not Found")
             return
 
@@ -299,15 +365,16 @@ class _CrxHandler(http.server.BaseHTTPRequestHandler):
             self.send_error(404, "Not Found")
             return
 
-        body = target.read_bytes()
+        content = target.read_bytes()
         self.send_response(200)
         self.send_header(
             "Content-Type", CONTENT_TYPES.get(target.suffix.lower(), "application/octet-stream")
         )
-        self.send_header("Content-Length", str(len(body)))
+        self.send_header("Content-Length", str(len(content)))
         self.send_header("Cache-Control", "no-store")
         self.end_headers()
-        self.wfile.write(body)
+        if body:
+            self.wfile.write(content)
 
     def log_message(self, *args) -> None:  # silencia o access log
         return None
@@ -340,19 +407,43 @@ def start_crx_server(crx_dir: Path, port: int) -> bool:
 # --------------------------------------------------------------------------
 # modo --chrome-extension-help
 # --------------------------------------------------------------------------
+def find_chrome() -> Path | None:
+    """Procura o chrome.exe nas localizações habituais e no registo."""
+    for candidate in CHROME_CANDIDATES:
+        path = Path(os.path.expandvars(candidate))
+        if path.is_file():
+            return path
+
+    try:
+        import winreg
+
+        for hive, key in (
+            (winreg.HKEY_LOCAL_MACHINE, r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe"),
+            (winreg.HKEY_CURRENT_USER, r"SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\chrome.exe"),
+        ):
+            try:
+                with winreg.OpenKey(hive, key) as handle:
+                    path = Path(winreg.QueryValue(handle, None))
+                    if path.is_file():
+                        return path
+            except OSError:
+                continue
+    except ImportError:
+        pass
+    return None
+
+
 def open_chrome_extension_help(app_dir: Path) -> int:
     ext_dir = app_dir / "extension"
-    chrome = next(
-        (Path(os.path.expandvars(p)) for p in CHROME_CANDIDATES if Path(os.path.expandvars(p)).is_file()),
-        None,
-    )
-    try:
-        if chrome is not None:
+    chrome = find_chrome()
+
+    if chrome is not None:
+        try:
             subprocess.Popen([str(chrome), "chrome://extensions"], close_fds=True)
-        else:
-            os.startfile("chrome")  # type: ignore[attr-defined]
-    except OSError as exc:
-        log.warning("não foi possível abrir o Chrome: %s", exc)
+        except OSError as exc:
+            log.warning("não foi possível abrir o Chrome: %s", exc)
+    else:
+        log.warning("chrome.exe não encontrado; abra manualmente chrome://extensions")
 
     if ext_dir.is_dir():
         try:
@@ -427,7 +518,7 @@ def supervise(app_exe: Path, app_dir: Path, crx_port: int, app_port: int, serve_
             backoff = min(backoff * 2, max_backoff)
             continue
 
-        job.assign(int(proc._handle))  # type: ignore[attr-defined]
+        job.assign(proc)
         log.info("app.exe arrancado (pid %s)", proc.pid)
 
         proc.wait()

@@ -140,7 +140,7 @@ end;
 procedure CurStepChanged(CurStep: TSetupStep);
 begin
   if CurStep = ssPostInstall then
-    if ChromeExecutable() <> '' then
+    if (not WizardSilent) and (ChromeExecutable() <> '') then
       MsgBox('A extensao foi registada na politica do Chrome.' + #13#10 + #13#10 +
              'Feche e volte a abrir o Chrome para a instalacao automatica entrar em vigor.' + #13#10 +
              'Se o Chrome recusar a instalacao automatica, use o atalho' + #13#10 +
