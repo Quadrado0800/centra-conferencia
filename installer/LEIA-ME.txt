@@ -1,0 +1,50 @@
+CENTRAL DO RECEPCIONISTA
+=======================
+
+Esta pasta foi criada pelo instalador. Contem:
+
+  Central_Recepcionist_conf_plus_printer.exe   A aplicacao (servidor local)
+  CentralRecepcionistaLauncher.exe             Arranca e vigia a aplicacao
+  extension\                                   Extensao do Chrome (por instalar a mao)
+  crx\                                         CRX assinado + updates.xml (instalacao automatica)
+  logs\launcher.log                            Registo do launcher
+  conferencia.json                             Dados guardados pela aplicacao
+
+
+COMO FUNCIONA
+-------------
+
+O CentralRecepcionistaLauncher.exe arranca com o Windows (pasta Arranque, todos
+os utilizadores). Ele inicia a aplicacao escondida em 127.0.0.1:8000 e volta a
+arranca-la se ela cair. Nao feche o launcher.
+
+O launcher serve tambem, em 127.0.0.1:8011, o ficheiro que o Chrome usa para
+instalar a extensao automaticamente.
+
+
+A EXTENSAO DO CHROME
+--------------------
+
+A instalacao automatica (politica de maquina) e aplicada pelo instalador. Depois
+de instalar, FECHE E VOLTE A ABRIR O CHROME.
+
+Se o Chrome recusar a instalacao automatica (versoes recentes bloqueiam
+extensoes que nao venham da Chrome Web Store), instale a mao:
+
+  1. Menu Iniciar > "Instalar a extensao no Chrome (manual)"
+     (abre chrome://extensions e a pasta "extension").
+  2. Active o "Modo de programador" (canto superior direito).
+  3. "Carregar sem compactacao" e escolha esta pasta:
+        <pasta de instalacao>\extension
+  4. Confirme que aparece "Central do recepcionista" ativa.
+
+O ID da extensao e o mesmo nos dois metodos, para nao ficarem duas copias
+a correr ao mesmo tempo.
+
+
+DESINSTALAR
+-----------
+
+Painel de Controlo > Programas e Funcionalidades > Central do Recepcionista.
+O desinstalador para o launcher, remove os ficheiros e retira a politica do
+Chrome. A extensao carregada a mao tem de ser removida em chrome://extensions.
