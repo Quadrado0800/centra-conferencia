@@ -1,0 +1,59 @@
+{
+  "manifest_version": 3,
+  "name": "Central do recepcionista",
+  "version": "2.1.0",
+  "description": "Central do recepcionista — conferência de comandas no Mapa de UHs e Central de Impressões integrada como tela nativa do Desbravador.",
+  "author": "Uso interno",
+  "permissions": ["storage", "cookies"],
+  "host_permissions": [
+    "https://desbravadorweb.com.br/*",
+    "https://*.desbravadorweb.com.br/*",
+    "http://127.0.0.1:8000/*",
+    "http://localhost:8000/*",
+    "http://127.0.0.1:5000/*",
+    "http://localhost:5000/*",
+    "http://127.0.0.1:8001/*",
+    "http://localhost:8001/*"
+  ],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://desbravadorweb.com.br/*"],
+      "js": ["content.js"],
+      "css": ["content.css"],
+      "run_at": "document_start",
+      "all_frames": false
+    },
+    {
+      "matches": ["https://desbravadorweb.com.br/*"],
+      "js": ["main-world.js"],
+      "run_at": "document_start",
+      "all_frames": false,
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://desbravadorweb.com.br/*",
+        "https://*.desbravadorweb.com.br/*"
+      ],
+      "js": ["central.js"],
+      "run_at": "document_start",
+      "all_frames": false
+    }
+  ],
+  "action": {
+    "default_title": "Central do recepcionista",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    }
+  },
+  "icons": {
+    "16": "icons/icon16.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  }
+}

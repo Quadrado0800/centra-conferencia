@@ -1,0 +1,5 @@
+Flask
+PyMuPDF
+pywin32
+requests
+pyinstaller

@@ -1,0 +1,6 @@
+function calculate(a, b) {
+  const sum = a + b;
+  const product = a * b;
+  const diff = a - b;
+  return { sum, product, diff };
+}

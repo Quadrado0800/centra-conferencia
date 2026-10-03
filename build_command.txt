@@ -1,0 +1,12 @@
+
+MODIFIED!
+
+===========================================================================================
+
+pyinstaller --onefile --noconsole  --name Central_Recepcionist_conf_plus_printer --add-data "backend/templates;templates" --add-data "backend/tools;tools" "backend/app.py"
+
+===========================================================================================
+
+pyinstaller --onefile --name CentralImpressoes --add-data "backend/templates;templates" --add-data "backend/tools;tools" "backend/app.py"
+
+==========================================================================================

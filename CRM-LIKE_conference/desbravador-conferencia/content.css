@@ -1,0 +1,338 @@
+/* ============================================================
+   Estilos injetados pela extensão.
+   O modal usa Shadow DOM — não precisa de CSS aqui.
+   ============================================================ */
+
+/* Badge no card da UH (canto superior direito do ícone) */
+.ext-card-badge {
+  position: absolute;
+  top: -6px;
+  right: -6px;
+  min-width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  padding: 0 5px;
+  /* SEM a moldura branca de 2px (a pedido): o badge é só o círculo colorido.
+     Fica apenas uma sombra suave para o destacar do ícone por baixo. */
+  border: 0;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, .35);
+  /* 1 e não 5/7: o popover nativo da UH (.mapauh-main-popover) tem
+     z-index 2 — com um valor maior o badge/checkbox pintava-se por cima
+     do popover (apareciam quadrados claros sobre o conteúdo dele). */
+  z-index: 1;
+  pointer-events: none;
+}
+.ext-card-badge.pend { background: #ef6c00; }
+.ext-card-badge.div  { background: #CA0806; }
+.ext-card-badge.ok   { background: #40C057; }
+
+/* Badge dentro do botão "Conferir comandas" */
+.ext-badge {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 7px;
+  border-radius: 10px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: #adb5bd;
+}
+.ext-badge.pend { background: #ef6c00; }
+.ext-badge.div  { background: #CA0806; }
+.ext-badge.ok   { background: #40C057; }
+
+/* Botão "Conferir comandas" (destaque azul).
+   Sem borda: o ACE aplica `border: 5px solid #fff` a todo o .btn, mas o botão
+   nativo do popover ("Extrato de conta") tem `border: 0` — herdá-la deixava
+   um caixilho claro à volta do botão. */
+.btn-popover-grande.ext-conferir {
+  background: #0684c6 !important;
+  border: 0 !important;
+}
+.btn-popover-grande.ext-conferir:hover {
+  background: #00679d !important;
+}
+
+/* Botão "Lançar comandas" (neutro) */
+.btn-popover-grande.ext-lancar {
+  background: #6fb3e0 !important;
+  border: 0 !important;
+}
+.btn-popover-grande.ext-lancar:hover {
+  background: #4f99c6 !important;
+}
+
+/* Espaço entre os dois botões do popover: sem a borda de 5px do ACE ficavam
+   colados (gap 0). O próprio app separa grupos de botões com `.space-btns-border`
+   (3px + 1px + 3px de margem) — 4px dá o mesmo ritmo sem a linha. */
+.mapauh-popover-footer .div-btn-popover-grande.ext-lancar-wrap {
+  margin-bottom: 4px;
+}
+
+/* ============================================================
+   Barra lateral "Modo conferência" (somente no Mapa de UHs)
+   ============================================================ */
+#ext-sidebar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 320px;
+  z-index: 1029;              /* abaixo do cabeçalho (1030), acima do conteúdo */
+  background: #fff;
+  border-left: 1px solid #e3e6ea;
+  box-shadow: -2px 0 12px rgba(0, 0, 0, .08);
+  padding: 72px 0 0;          /* 72px = altura do cabeçalho fixo */
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+  transform: translateX(100%);
+  transition: transform .22s ease;
+}
+#ext-sidebar.aberto { transform: translateX(0); }
+
+#ext-sidebar .ext-sb-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid #eef1f4;
+  flex: 0 0 auto;
+}
+#ext-sidebar .ext-sb-title {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #428ece;
+}
+#ext-sidebar .ext-sb-close {
+  border: 0;
+  background: transparent;
+  font-size: 20px;
+  line-height: 1;
+  color: #98a2ad;
+  cursor: pointer;
+}
+#ext-sidebar .ext-sb-close:hover { color: #5a6672; }
+
+#ext-sidebar .ext-sb-body {
+  flex: 1 1 auto;
+  overflow-y: auto;
+  padding: 16px;
+}
+#ext-sidebar .ext-sb-desc {
+  margin: 0 0 18px;
+  font-size: 12.5px;
+  line-height: 1.55;
+  color: #5a6672;
+}
+#ext-sidebar .ext-sb-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+/* Campo de filtro (ex.: data de check-out) */
+#ext-sidebar .ext-sb-field {
+  margin: 0 0 16px;
+}
+#ext-sidebar .ext-sb-field label {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #868e96;
+}
+#ext-sidebar .ext-sb-field input {
+  width: 100%;
+  height: 32px;
+  font-size: 13px;
+}
+#ext-sidebar .ext-sb-date-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+#ext-sidebar .ext-sb-date-row input {
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+}
+#ext-sidebar .ext-sb-date-row .btn {
+  flex: 0 0 auto;
+  width: 34px;
+  height: 32px;
+  padding: 0;
+  font-size: 12px;
+}
+
+/* Checkbox de filtro (ex.: apenas check-outs) */
+#ext-sidebar .ext-sb-field label.ext-sb-check {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 12px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: #495057;
+  cursor: pointer;
+}
+#ext-sidebar .ext-sb-field label.ext-sb-check input {
+  flex: 0 0 auto;
+  width: auto;
+  height: auto;
+  margin: 0;
+  cursor: pointer;
+}
+#ext-sidebar .ext-sb-actions .btn {
+  width: 100%;
+  text-align: center;
+  /* o ACE dá 5px de borda a um `.btn` sem `btn-white` (o "Imprimir" tinha 3px):
+     uniformiza em 1px para os dois botões ficarem com a mesma altura */
+  border-width: 1px;
+}
+
+/* Botão discreto ("tímido") para reabrir a barra — encostado na borda direita */
+#ext-sidebar-toggle {
+  position: fixed;
+  top: 50%;
+  right: 0;
+  transform: translateY(-50%);
+  z-index: 1029;
+  display: none;              /* controlado por JS */
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 54px;
+  padding: 0;
+  border: 1px solid #e3e6ea;
+  border-right: 0;
+  border-radius: 6px 0 0 6px;
+  background: #f5f7f9;
+  color: #7a8794;
+  cursor: pointer;
+  box-shadow: -2px 0 8px rgba(0, 0, 0, .06);
+  opacity: .7;
+  transition: opacity .15s ease, background .15s ease, color .15s ease;
+}
+#ext-sidebar-toggle:hover {
+  opacity: 1;
+  background: #428ece;
+  color: #fff;
+  border-color: #428ece;
+}
+#ext-sidebar-toggle i { font-size: 12px; }
+
+/* Estatísticas dentro da barra lateral */
+#ext-sidebar .ext-sb-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  padding: 13px 16px;
+  border-bottom: 1px solid #eef1f4;
+  flex: 0 0 auto;
+  background: #fafbfc;
+}
+#ext-sidebar .ext-sb-stat {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12.5px;
+  color: #5a6672;
+}
+#ext-sidebar .ext-sb-stat-val {
+  font-weight: 700;
+  font-size: 15px;
+  color: #428ece;
+}
+#ext-sidebar .ext-sb-stat-val.ok { color: #40C057; }
+#ext-sidebar .ext-sb-stat-val.pend { color: #ef6c00; }
+
+/* ============================================================
+   Checkbox de seleção nos cards de UH (Mapa de UHs)
+   ============================================================ */
+.ext-uh-check {
+  position: absolute;
+  top: -5px;
+  left: -5px;
+  z-index: 1;                 /* abaixo do popover nativo (z-index 2) */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  background: transparent;    /* sem caixa branca/caixilho: fica só o checkbox */
+  border: 0;
+  box-shadow: none;
+  cursor: pointer;
+}
+.ext-uh-check input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  cursor: pointer;
+  /* mantém o checkbox legível sobre qualquer cor de ícone */
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, .5));
+}
+/* Estado da UH selecionada: anel azul à volta do ícone (o indicador visual da
+   seleção). NÃO confundir com a moldura branca do .ext-card-badge, essa sim
+   removida a pedido. */
+.uh-main.ext-uh-sel .uh-icon {
+  box-shadow: 0 0 0 2px #428ece, 0 0 0 4px rgba(66, 142, 206, .22);
+  border-radius: 5px;
+}
+.uh-main.ext-uh-sel .uh-footer .blue { color: #428ece; }
+
+/* UH escondida pelo filtro de check-out */
+.uh-main.ext-uh-oculta { display: none !important; }
+
+/* Aviso do filtro ativo na barra lateral */
+#ext-sidebar .ext-sb-aviso {
+  margin: 0 0 16px;
+  padding: 8px 10px;
+  background: #eaf4fd;
+  border: 1px solid #cfe4f7;
+  border-radius: 4px;
+  font-size: 12px;
+  color: #2b5c86;
+}
+#ext-sidebar .ext-sb-aviso b { color: #17466b; }
+
+/* Apoio / contato (Pix) — mesmo texto do rodapé da Central de Impressões */
+#ext-sidebar .ext-sb-pix {
+  margin-top: 14px;
+  padding-top: 11px;
+  border-top: 1px solid #eef1f4;
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: #4f9d69;
+  text-align: center;
+}
+#ext-sidebar .ext-sb-pix b { color: #3d8556; }
+
+/* Aviso flutuante (toast) da extensão */
+.ext-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 26px;
+  transform: translateX(-50%);
+  z-index: 2147483646;
+  max-width: 80vw;
+  padding: 10px 16px;
+  background: #2b3a45;
+  color: #fff;
+  font-size: 13px;
+  border-radius: 5px;
+  box-shadow: 0 4px 18px rgba(0, 0, 0, .3);
+  opacity: .97;
+  transition: opacity .25s;
+}

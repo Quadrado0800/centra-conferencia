@@ -1,0 +1,47 @@
+{
+  "1": {
+    "status": "divergente",
+    "comandas": {
+      "91100": true,
+      "91101": true,
+      "91102": true,
+      "91328": false,
+      "91329": true
+    },
+    "obs": "",
+    "total": 5,
+    "ts": "2026-09-23T20:28:53.410716+00:00"
+  },
+  "34": {
+    "status": "divergente",
+    "comandas": {
+      "91007": true,
+      "91008": false,
+      "91011": true,
+      "91043": true,
+      "91159": false,
+      "91243": false,
+      "91314": false
+    },
+    "obs": "",
+    "total": 7,
+    "ts": "2026-09-23T20:21:57.959665+00:00"
+  },
+  "8": {
+    "status": "pendente",
+    "comandas": {
+      "91310": false,
+      "91311": false,
+      "91330": false,
+      "91331": false,
+      "91332": false,
+      "91333": false,
+      "91334": false,
+      "91335": false,
+      "91351": false
+    },
+    "obs": "",
+    "total": 9,
+    "ts": "2026-09-23T20:35:20.713233+00:00"
+  }
+}

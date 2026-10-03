@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<title>Conferência de Comandas - Desbravador</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='conferencia.css') }}">
+</head>
+<body>
+
+<header class="topbar">
+  <h1>🗂️ Conferência de Comandas</h1>
+  <span class="data-caixa">Data do caixa: <b>{{ data_caixa }}</b></span>
+  <div class="resumo">
+    <span>UHs: <b id="total-uhs">0</b></span>
+    <span>Comandas: <b id="total-comandas">0</b></span>
+    <span class="ok">Conferidas: <b id="total-ok">0</b></span>
+    <span class="div">Divergentes: <b id="total-div">0</b></span>
+    <span class="pend">Pendentes: <b id="total-pend">0</b></span>
+  </div>
+  <button id="btn-atualizar" class="btn-secundario">↻ Atualizar</button>
+</header>
+
+<main class="layout">
+
+  <aside class="filtros">
+    <h3>Filtros</h3>
+    <div class="grupo">
+      <label>Saída</label>
+      <select id="filtro-saida-modo" style="width:100%;padding:4px;margin-bottom:4px;">
+        <option value="todas" selected>Todas</option>
+        <option value="hoje">Hoje</option>
+        <option value="amanha" >Amanhã</option>
+        <option value="data">Data específica…</option>
+      </select>
+      <input type="date" id="filtro-saida-data" style="display:none;width:100%;padding:4px;" />
+    </div>
+    <div class="grupo">
+      <label>Situação</label>
+      <div id="filtro-situacao"></div>
+    </div>
+
+    <div class="grupo">
+      <label>Tipo de UH</label>
+      <div id="filtro-tipo"></div>
+    </div>
+
+    <div class="grupo">
+      <label>Andar</label>
+      <div id="filtro-andar"></div>
+    </div>
+
+    <div class="grupo">
+      <label>Conferência</label>
+      <label class="check"><input type="checkbox" id="filtro-pendentes"> Só pendentes</label>
+      <label class="check"><input type="checkbox" id="filtro-divergentes"> Só divergentes</label>
+      <label class="check"><input type="checkbox" id="filtro-conferidas"> Só conferidas</label>
+    </div>
+
+    <button id="btn-limpar-filtros" class="btn-secundario">Limpar filtros</button>
+    <button id="btn-zerar-conf" class="btn-secundario">Zerar conferência</button>
+  </aside>
+
+  <section class="conteudo">
+    <div id="grade-uhs" class="grade"></div>
+  </section>
+
+</main>
+
+<!-- MODAL: começa com style="display:none" inline para nunca vazar -->
+<div id="modal" class="modal" style="display:none" aria-hidden="true">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+    <header class="modal-header">
+      <h2 id="modal-titulo">UH -</h2>
+      <button id="modal-fechar" class="btn-fechar" type="button" aria-label="Fechar">×</button>
+    </header>
+
+    <div class="modal-info">
+      <div><b>Hóspede:</b> <span id="modal-hospede">-</span></div>
+      <div><b>Reserva:</b> <span id="modal-reserva">-</span></div>
+      <div><b>Saída:</b> <span id="modal-saida">-</span></div>
+      <div><b>Ocupação:</b> <span id="modal-ocupacao">-</span></div>
+    </div>
+
+    <div class="abas">
+      <button class="aba ativa" data-aba="comandas" type="button">Comandas (Extra)</button>
+      <button class="aba" data-aba="diarias" type="button">Diárias (Faturado)</button>
+    </div>
+
+    <div id="painel-comandas" class="painel">
+      <table class="tabela-comandas">
+        <thead>
+          <tr>
+            <th style="width:40px">✓</th>
+            <th style="width:90px">N° Comanda</th>
+            <th>Descrição</th>
+            <th style="width:50px">Qtd</th>
+            <th style="width:70px">PDV</th>
+            <th style="width:100px">Valor</th>
+            <th style="width:110px">Data</th>
+            <th style="width:110px">Status</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-comandas"></tbody>
+      </table>
+    </div>
+
+    <div id="painel-diarias" class="painel" style="display:none">
+      <table class="tabela-comandas">
+        <thead>
+          <tr>
+            <th>Descrição</th>
+            <th style="width:60px">Qtd</th>
+            <th style="width:100px">Valor</th>
+            <th style="width:150px">Data</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-diarias"></tbody>
+      </table>
+    </div>
+
+    <div class="modal-obs">
+      <label>Observações</label>
+      <textarea id="modal-obs" rows="2" placeholder="Ex: comanda X não localizada..."></textarea>
+    </div>
+
+    <footer class="modal-footer">
+      <button id="btn-marcar-todas" class="btn-secundario" type="button">Marcar todas OK</button>
+      <button id="btn-desmarcar"    class="btn-secundario" type="button">Desmarcar</button>
+      <button id="btn-salvar"       class="btn-primario"   type="button">Salvar conferência</button>
+    </footer>
+  </div>
+</div>
+
+<script>
+  window.CORES_TIPO = {{ cores_tipo | tojson }};
+  window.CONECTADO  = {{ 'true' if connected else 'false' }};
+</script>
+<script src="{{ url_for('static', filename='conferencia.js') }}"></script>
+</body>
+</html>

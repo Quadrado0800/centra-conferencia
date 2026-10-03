@@ -1,0 +1,642 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Central de Impressões</title>
+<style>
+:root{--bg:#eef2f5;--card:#fff;--ink:#1f2937;--muted:#667085;--line:#d8e0e8;--accent:#1565c0;--accent-2:#0f4d91;--success:#176b2c;--success-bg:#dff5e3;--danger:#8c1d1d;--danger-bg:#fde3e3}
+*{box-sizing:border-box}
+body{margin:0;padding:28px;font-family:Arial,sans-serif;background:linear-gradient(180deg,#f7fafc 0%,var(--bg) 100%);color:var(--ink)}
+.container{max-width:980px;margin:auto;display:grid;gap:18px}
+.card{background:var(--card);border-radius:16px;padding:22px;box-shadow:0 8px 28px #0f172a12;border:1px solid #ffffffb3}
+.topbar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap}
+.title{margin:0 0 8px;font-size:30px;line-height:1.1}
+.small{color:var(--muted);font-size:13px}
+.status{display:inline-flex;align-items:center;padding:7px 12px;border-radius:999px;font-size:13px;font-weight:700;letter-spacing:.2px}
+.ok{background:var(--success-bg);color:var(--success)}
+.bad{background:var(--danger-bg);color:var(--danger)}
+button{border:0;border-radius:10px;padding:10px 16px;cursor:pointer;font-weight:700;transition:transform .15s ease,opacity .15s ease,background .15s ease}
+button:hover{transform:translateY(-1px)}
+button:disabled{opacity:.6;cursor:not-allowed;transform:none}
+.primary{background:var(--accent);color:#fff}.primary:hover{background:var(--accent-2)}
+.secondary{background:#e8eef5;color:#294158}.secondary:hover{background:#dbe5f0}
+.message{margin-top:14px;white-space:pre-wrap}
+details.fold{overflow:hidden}
+details.fold > summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:14px}
+details.fold > summary::-webkit-details-marker{display:none}
+.summary-label{display:flex;flex-direction:column;gap:4px}
+.summary-title{font-size:18px;font-weight:700}
+.summary-meta{font-size:13px;color:var(--muted)}
+.fold-body{padding-top:18px}
+.toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.toolbar-left,.toolbar-right{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.count-pill{background:#f2f6fb;border:1px solid var(--line);padding:7px 10px;border-radius:999px;font-size:13px;color:#36506b}
+.list{display:grid;gap:12px}
+.reserva{border:1px solid var(--line);border-radius:14px;padding:14px 14px 14px 12px;display:flex;justify-content:space-between;align-items:flex-start;gap:14px;background:linear-gradient(180deg,#fff 0%,#fbfcfe 100%)}
+.reserva:hover{border-color:#b9c7d6}
+.reserva-main{display:flex;align-items:flex-start;gap:12px;min-width:0}
+.reserva-main input{margin-top:4px;transform:scale(1.1)}
+.reserva-content{min-width:0}
+.reserva-id{font-size:16px;font-weight:700;margin-bottom:4px}
+.quartos{color:var(--muted);font-size:13px;line-height:1.45;word-break:break-word}
+.hint{font-size:13px;color:var(--muted)}
+.empty{padding:18px 0;color:var(--muted)}
+@media (max-width:640px){body{padding:14px}.card{padding:18px}.title{font-size:24px}.reserva{flex-direction:column}.toolbar{align-items:flex-start}}
+</style>
+</head>
+<body>
+<div class="container">
+	<div class="card">
+		<div class="topbar">
+			<div>
+				<h1 class="title">Central de Impressões</h1>
+				<span class="status {{ 'ok' if connected else 'bad' }}">{{ '● Sessão conectada' if connected else '● Sessão não conectada' }}</span>
+				<p class="small">Use a extensão para conectar a sessão atual do Desbravador.</p>
+			</div>
+				<div style="display:flex;flex-direction:column;align-items:flex-end;gap:10px;">
+					<button class="primary" onclick="buscar()">Atualizar check-ins</button>
+
+				<div style="text-align:right;font-size:13px;color:#4f9d69;line-height:1.6;">
+					<div>Se isso foi útil para você, considere me apoiar &lt;3</div>
+					<div>Programa feito por <b>Isaac</b></div>
+					<div style="margin-top:3px;">
+						Chave Pix e contato para suporte: <b>(94) 99663-5669</b>
+					</div>
+				</div>
+
+				</div>
+
+		</div>
+		<div id="message" class="message"></div>
+	</div>
+
+	<div class="card">
+		<h2 style="margin-top:0">Impressões configuradas</h2>
+		<div class="small">Confirmação: <b>{{'ATIVADA' if print_confirmation else 'desativada'}}</b></div>
+		<div class="small">Ficha-Hospedes: <b>{{'ATIVADA' if print_ficha else 'desativada'}}</b></div>
+		<div class="small">Informativos: <b>{{'ATIVADA' if print_informativos else 'desativada'}}</b></div>
+	</div>
+	<div class="card">
+		<h2 style="margin-top:0">Relatórios</h2>
+
+		<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;">
+
+			<button
+				class="primary"
+				type="button"
+				id="printCheckinDia"
+				onclick="imprimirCheckinDia()">
+				Relatório de Check-in do dia
+			</button>
+
+			<button
+				class="primary"
+				type="button"
+				id="printGovernanca"
+				onclick="imprimirGovernanca()">
+				Relatório de Governança
+			</button>
+
+			<label style="display:flex;align-items:center;gap:8px;margin-top:14px;font-size:13px;color:var(--muted);">
+				<span>Dias entre trocas:</span>
+
+				<input
+					type="number"
+					id="diasEntreTrocas"
+					min="0"
+					max="30"
+					step="1"
+					value="2"
+					style="width:70px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;"
+				>
+			</label>
+		</div>
+	</div>
+	<div class="card">
+		<div class="toolbar">
+			<div>
+				<h2 style="margin:0 0 6px">Previsão de Café da Manhã</h2>
+				<div class="small">
+					Calculado com base na ocupação atual, check-ins e check-outs do dia.
+				</div>
+			</div>
+
+			<button
+				class="primary"
+				type="button"
+				id="btnPrevisaoCafe"
+				onclick="atualizarPrevisaoCafe()">
+				Atualizar
+			</button>
+		</div>
+
+		<div
+			id="previsaoCafe"
+			style="
+				display:grid;
+				grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+				gap:12px;
+				margin-top:16px;
+			"
+		>
+			<div class="small">
+				Clique em "Atualizar" para consultar a previsão.
+			</div>
+		</div>
+
+		<div style="margin-top:16px;">
+			<button
+				class="secondary"
+				type="button"
+				id="btnCopiarCafe"
+				onclick="copiarPrevisaoCafe()"
+				disabled>
+				Copiar mensagem
+			</button>
+		</div>
+	</div>
+	<details class="card fold" open>
+		<summary>
+			<div class="summary-label">
+				<div class="summary-title">Check-ins</div>
+				<div class="summary-meta">Selecione os apartamentos que deseja imprimir. Esta área pode ser recolhida.</div>
+			</div>
+			<div class="toolbar-right">
+				<div class="count-pill" id="selectedCount">0 selecionados</div>
+				<button class="secondary" type="button" id="toggleFold" onclick="alternarPainel(event)">Recolher</button>
+			</div>
+		</summary>
+		<div class="fold-body">
+			<div class="toolbar">
+				<div class="toolbar-left">
+					<button class="secondary" type="button" onclick="marcarTodos(true)">Marcar todos</button>
+					<button class="secondary" type="button" onclick="marcarTodos(false)">Desmarcar todos</button>
+					<span class="hint" id="totalCount">0 apartamento(s)</span>
+				</div>
+				<div class="toolbar-right" style="align-items:flex-start;">
+					<div style="display:flex;flex-direction:column;gap:8px;align-items:flex-start;">
+						<label class="hint" for="printerSelect" style="display:flex;align-items:center;gap:8px;">
+							<span>Impressora:</span>
+							<select id="printerSelect" style="padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;min-width:220px;"></select>
+						</label>
+						<div style="display:flex;flex-wrap:wrap;gap:12px;font-size:13px;color:var(--muted);align-items:center;">
+							<label><input type="checkbox" id="printFicha"> Ficha</label>
+							<label><input type="checkbox" id="printInformativos"> Informativos</label>
+							<label style="display:flex;align-items:center;gap:6px;">
+								<span>Tempo espera (s):</span>
+								<input type="number" id="printHoldSeconds" min="0" step="1" value="5" style="width:70px;padding:6px 8px;border:1px solid var(--line);border-radius:8px;">
+							</label>
+						</div>
+					</div>
+					<button class="primary" type="button" id="printSelected" onclick="imprimirSelecionados()" disabled>Imprimir selecionados</button>
+				</div>
+			</div>
+			<div id="reservas"><p class="small">Clique em atualizar.</p></div>
+		</div>
+	</details>
+</div>
+
+<script>
+const msg=t=>document.getElementById("message").textContent=t;
+let reservasCache=[];
+
+function carregarPreferencias(){
+	try{
+		const saved=JSON.parse(localStorage.getItem("central_impressao_config")||"{}")||{};
+		const select=document.getElementById("printerSelect");
+		const hold=document.getElementById("printHoldSeconds");
+		if(select){
+			const printer=saved.printer||"";
+			if(printer){
+				const exists=[...select.options].some(option=>option.value===printer);
+				if(exists){ select.value=printer; }
+			}
+		}
+		if(hold){
+			const value=saved.printHoldSeconds;
+			if(value!==undefined && value!==null){ hold.value=value; }
+		}
+	}catch(e){
+		console.error(e);
+	}
+}
+
+function salvarPreferencias(){
+	try{
+		const select=document.getElementById("printerSelect");
+		const hold=document.getElementById("printHoldSeconds");
+		const config={
+			printer: select ? select.value : "",
+			printHoldSeconds: hold ? parseInt(hold.value,10)||0 : 0
+		};
+		localStorage.setItem("central_impressao_config", JSON.stringify(config));
+	}catch(e){
+		console.error(e);
+	}
+}
+
+async function carregarImpressoras(){
+	const select=document.getElementById("printerSelect");
+	if(!select) return;
+	select.innerHTML='<option value="">Impressora padrão</option>';
+	try{
+		const r=await fetch("/api/printers");
+		const d=await r.json();
+		if(r.ok&&d.ok){
+			const options=(d.printers||[]).map(name=>`<option value="${name}">${name}</option>`).join("");
+			select.insertAdjacentHTML("beforeend", options);
+		}
+	}catch(e){
+		console.error(e);
+	}
+	carregarPreferencias();
+}
+
+function getFold(){
+	return document.querySelector("details.fold");
+}
+
+function alternarPainel(event){
+	if(event) event.preventDefault();
+	const fold=getFold();
+	fold.open=!fold.open;
+	document.getElementById("toggleFold").textContent=fold.open?"Recolher":"Expandir";
+}
+
+function atualizarContadores(){
+	const selecionados=document.querySelectorAll('input[name="reservaSelecionada"]:checked').length;
+	const total=document.querySelectorAll('input[name="reservaSelecionada"]').length;
+	document.getElementById("selectedCount").textContent=`${selecionados} selecionado(s)`;
+	document.getElementById("totalCount").textContent=`${total} apartamento(s)`;
+	document.getElementById("printSelected").disabled=selecionados===0;
+}
+
+function renderReservas(reservas){
+	const box=document.getElementById("reservas");
+	if(!reservas.length){
+		box.innerHTML="<div class='empty'>Nenhum check-in encontrado.</div>";
+		atualizarContadores();
+		return;
+	}
+
+	box.innerHTML=`<div class="list">${reservas.map(x=>`<label class="reserva"><div class="reserva-main"><input type="checkbox" name="reservaSelecionada" value="${x.id}" data-id="${x.id}"><div class="reserva-content"><div class="reserva-id">Reserva #${x.id}</div><div class="quartos">Quartos: ${x.quartos.length?x.quartos.join(", "):"não informado"}</div></div></div></label>`).join("")}</div>`;
+	box.querySelectorAll('input[name="reservaSelecionada"]').forEach(input=>input.addEventListener("change",atualizarContadores));
+	atualizarContadores();
+}
+
+async function buscar(){
+	const box=document.getElementById("reservas");
+	msg("Buscando check-ins...");
+	box.innerHTML="<p class='small'>Consultando Desbravador...</p>";
+	try{
+		const r=await fetch("/api/reservas",{method:"POST"});
+		const d=await r.json();
+		if(!r.ok||!d.ok) throw Error(d.error||"Erro");
+		reservasCache=d.reservas||[];
+		renderReservas(reservasCache);
+		msg(`${d.count} reserva(s) encontrada(s).`);
+	}catch(e){
+		box.innerHTML="";
+		reservasCache=[];
+		atualizarContadores();
+		msg("Erro: "+e.message)
+	}
+}
+
+function marcarTodos(selecionar){
+	document.querySelectorAll('input[name="reservaSelecionada"]').forEach(input=>{input.checked=selecionar});
+	atualizarContadores();
+}
+
+async function imprimirSelecionados(){
+	const selecionados=[...document.querySelectorAll('input[name="reservaSelecionada"]:checked')].map(input=>input.value);
+	if(!selecionados.length){
+		msg("Selecione ao menos um apartamento para imprimir.");
+		return;
+	}
+
+	const botao=document.getElementById("printSelected");
+	const printer=document.getElementById("printerSelect").value||"";
+	const printSettings={
+		print_confirmation:true,
+		print_ficha:document.getElementById("printFicha").checked,
+		print_informativos:document.getElementById("printInformativos").checked,
+		print_hold_seconds:parseInt(document.getElementById("printHoldSeconds").value,10)||0
+	};
+	salvarPreferencias();
+	const antigos=botao.textContent;
+	botao.disabled=true;
+	botao.textContent="Imprimindo...";
+	msg(`Imprimindo ${selecionados.length} apartamento(s)...`);
+
+	try{
+		const r=await fetch("/api/imprimir-lote",{
+			method:"POST",
+			headers:{"Content-Type":"application/json"},
+			body:JSON.stringify({ids:selecionados,printer,...printSettings})
+		});
+		const d=await r.json();
+		if(!r.ok&& !d.ok) throw new Error(d.error||`HTTP ${r.status}`);
+		const linhas=[`Impressão concluída para ${d.count||0} apartamento(s).`];
+		if(d.printed&&d.printed.length){
+			linhas.push(`Reservas: ${d.printed.map(item=>`#${item.reserva_id}`).join(", ")}`);
+		}
+		if(d.errors&&d.errors.length){
+			linhas.push(`Falhas: ${d.errors.map(item=>`#${item.id} (${item.error})`).join(" | ")}`);
+		}
+		msg(linhas.join("\n"));
+	}catch(e){
+		msg("Erro ao imprimir selecionados: "+e.message);
+	}finally{
+		botao.textContent=antigos;
+		atualizarContadores();
+	}
+}
+
+document.querySelector("details.fold").addEventListener("toggle",()=>{
+	document.getElementById("toggleFold").textContent=getFold().open?"Recolher":"Expandir";
+});
+
+document.getElementById("toggleFold").textContent=getFold().open?"Recolher":"Expandir";
+['printerSelect','printHoldSeconds'].forEach(id=>{
+	const el=document.getElementById(id);
+	if(el){ el.addEventListener('change', salvarPreferencias); }
+});
+
+async function imprimirCheckinDia(){
+
+    const botao = document.getElementById("printCheckinDia");
+
+    const textoOriginal = botao.textContent;
+
+    botao.disabled = true;
+    botao.textContent = "Imprimindo...";
+
+    msg("Gerando relatório de check-in do dia...");
+
+    try{
+
+        const r = await fetch("/api/relatorio/checkin", {
+            method: "POST"
+        });
+
+        const d = await r.json();
+
+        if(!r.ok || !d.ok){
+            throw new Error(d.error || `HTTP ${r.status}`);
+        }
+
+        msg(
+            `Relatório de check-in do dia impresso com sucesso.\n` +
+            `Data: ${d.data}`
+        );
+
+    }catch(e){
+
+        msg(
+            "Erro ao imprimir relatório de check-in: " +
+            e.message
+        );
+
+    }finally{
+
+        botao.disabled = false;
+        botao.textContent = textoOriginal;
+
+    }
+}
+
+async function imprimirGovernanca(){
+
+    const botao = document.getElementById("printGovernanca");
+	const diasEntreTrocas =
+    parseInt(document.getElementById("diasEntreTrocas").value, 10) || 2;
+    const textoOriginal = botao.textContent;
+
+    botao.disabled = true;
+    botao.textContent = "Imprimindo...";
+
+    msg("Gerando relatório de Governança...");
+
+		try{
+
+				const r = await fetch("/api/relatorio/governanca", {
+			method: "POST",
+			headers: {
+				"Content-Type": "application/json"
+			},
+			body: JSON.stringify({
+				dias_entre_trocas: diasEntreTrocas
+			})
+		});
+
+        const d = await r.json();
+
+        if(!r.ok || !d.ok){
+            throw new Error(d.error || `HTTP ${r.status}`);
+        }
+
+        msg(
+            "Relatório de Governança impresso com sucesso.\n" +
+            `Andares: ${d.andares.join(", ")}`
+        );
+
+    }catch(e){
+
+        msg(
+            "Erro ao imprimir relatório de Governança: " +
+            e.message
+        );
+
+    }finally{
+
+        botao.disabled = false;
+        botao.textContent = textoOriginal;
+
+    }
+}
+
+let previsaoCafeCache = null;
+
+async function atualizarPrevisaoCafe(){
+
+    const botao = document.getElementById("btnPrevisaoCafe");
+    const box = document.getElementById("previsaoCafe");
+
+    const textoOriginal = botao.textContent;
+
+    botao.disabled = true;
+    botao.textContent = "Consultando...";
+
+    box.innerHTML = `
+        <div class="small">
+            Consultando Desbravador...
+        </div>
+    `;
+
+    try{
+
+        const r = await fetch("/api/previsao-cafe");
+
+        const d = await r.json();
+
+        if(!r.ok || !d.ok){
+            throw new Error(d.error || `HTTP ${r.status}`);
+        }
+
+        previsaoCafeCache = d;
+
+        box.innerHTML = `
+            <div class="card" style="padding:16px;box-shadow:none;">
+                <div class="small">UH's ocupadas hoje</div>
+                <div style="font-size:26px;font-weight:700;">
+                    ${d.uh_atual}
+                </div>
+            </div>
+
+            <div class="card" style="padding:16px;box-shadow:none;">
+                <div class="small">Hóspedes na casa</div>
+                <div style="font-size:26px;font-weight:700;">
+                    ${d.pax_atual}
+                </div>
+            </div>
+
+            <div class="card" style="padding:16px;box-shadow:none;">
+                <div class="small">Check-in</div>
+                <div style="font-size:22px;font-weight:700;">
+                    ${d.checkin_uh} UH | ${d.checkin_pax} PAX
+                </div>
+            </div>
+
+            <div class="card" style="padding:16px;box-shadow:none;">
+                <div class="small">Check-out previsto</div>
+                <div style="font-size:22px;font-weight:700;">
+                    ${d.checkout_uh} UH | ${d.checkout_pax} PAX
+                </div>
+            </div>
+
+            <div
+                class="card"
+                style="
+                    padding:16px;
+                    box-shadow:none;
+                    grid-column:1/-1;
+                "
+            >
+                <div class="small">
+                    Café da manhã para amanhã
+                </div>
+
+                <div style="font-size:30px;font-weight:700;">
+                    ${d.uh_amanha} UHs | ${d.pax_amanha} PAX
+                </div>
+            </div>
+        `;
+
+        document.getElementById("btnCopiarCafe").disabled = false;
+
+        msg(
+            `Previsão atualizada.\n` +
+            `${d.uh_amanha} UHs | ${d.pax_amanha} PAX para o café de amanhã.`
+        );
+
+    }catch(e){
+
+        previsaoCafeCache = null;
+
+        box.innerHTML = `
+            <div class="small">
+                Erro ao consultar a previsão.
+            </div>
+        `;
+
+        document.getElementById("btnCopiarCafe").disabled = true;
+
+        msg("Erro ao atualizar previsão: " + e.message);
+
+    }finally{
+
+        botao.disabled = false;
+        botao.textContent = textoOriginal;
+
+    }
+}
+
+
+async function copiarPrevisaoCafe(){
+
+    if(!previsaoCafeCache){
+        msg("Atualize a previsão antes de copiar.");
+        return;
+    }
+
+    const d = previsaoCafeCache;
+    const botao = document.getElementById("btnCopiarCafe");
+
+    const dataHoje = d.data;
+
+    const partes = dataHoje.split("/");
+
+    const data = new Date(
+        Number(partes[2]),
+        Number(partes[1]) - 1,
+        Number(partes[0])
+    );
+
+    data.setDate(data.getDate() + 1);
+
+    const dataAmanha =
+        String(data.getDate()).padStart(2, "0") + "/" +
+        String(data.getMonth() + 1).padStart(2, "0") + "/" +
+        data.getFullYear();
+
+    const mensagem =
+`Bom dia!
+📊 Atualização do dia ${dataHoje}:
+- 🛌 ${d.uh_atual} UH's ocupadas: 
+- 👥Total de hóspedes (PAX): ${d.pax_atual}
+🔁 Movimentações do dia:
+
+📈Check-in: ${String(d.checkin_uh).padStart(2, "0")} UH's | ${d.checkin_pax} Pax
+- 
+- 
+📉Check-out previsto: ${String(d.checkout_uh).padStart(2, "0")} UH's | ${d.checkout_pax} Pax
+- 
+- 
+🍽️ Café da manhã para amanhã (${dataAmanha})
+- 🌄
+
+${d.uh_amanha} UHs | pax ${d.pax_amanha}`;
+
+    try{
+
+        await navigator.clipboard.writeText(mensagem);
+
+        // Confirmação visual no próprio botão
+        const textoOriginal = botao.textContent;
+
+        botao.textContent = "Copiado!";
+        botao.disabled = true;
+
+        // Mantém a confirmação por 2 segundos
+        setTimeout(() => {
+            botao.textContent = textoOriginal;
+            botao.disabled = false;
+        }, 2000);
+
+        msg("Mensagem copiada para a área de transferência.");
+
+    }catch(e){
+
+        msg("Erro ao copiar mensagem: " + e.message);
+
+    }
+}
+
+atualizarPrevisaoCafe();
+buscar();
+carregarImpressoras();
+</script>
+</body>
+</html>
