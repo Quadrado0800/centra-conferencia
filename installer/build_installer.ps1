@@ -3,28 +3,53 @@
     Compila tudo o que o instalador da Central do Recepcionista precisa.
 
 .DESCRIPTION
-    1. Garante o .venv e as dependencias de build.
-    2. Garante dist\Central_Recepcionist_conf_plus_printer.exe (-RebuildApp
-       para forcar a reconstrucao via PyInstaller).
-    3. Prepara a extensao do Chrome: chave estavel, CRX3, updates.xml.
-    4. Compila o launcher (CentralRecepcionistaLauncher.exe).
-    5. Compila o instalador com o Inno Setup.
+    Um comando para atualizar tudo. Mude o que precisar (app.py, a extensao em
+    CRM-LIKE_conference\desbravador-conferencia, installer\launcher.py) e corra:
+
+        .\installer\build_installer.ps1
+
+    O script:
+      1. garante o .venv e as dependencias de build;
+      2. reconstroi dist\Central_Recepcionist_conf_plus_printer.exe (app.py);
+      3. re-empacota a extensao do Chrome (chave estavel, CRX3, updates.xml);
+      4. reconstroi CentralRecepcionistaLauncher.exe;
+      5. gera installer\dist\CentralRecepcionista_Setup.exe.
+
+    O Setup.exe e o UNICO ficheiro a distribuir -- traz tudo dentro.
+
+    Dois ambientes, de proposito:
+      .venv                  dependencias da aplicacao (requirements.txt).
+                             E daqui que sai o app.exe.
+      installer\.venv-build  ferramentas de build (cryptography, pyinstaller).
+                             Fica separado para que nada do build acabe
+                             empacotado dentro do app.exe.
+
+    ANTES DE COMPILAR: se alterou a extensao, suba o campo "version" em
+    CRM-LIKE_conference\desbravador-conferencia\manifest.json. O Chrome so
+    aceita uma atualizacao cuja versao seja superior; o script recusa
+    publicar extensao alterada com a mesma versao. (E essa mesma versao que
+    aparece em Programas e Funcionalidades.)
 
 .EXAMPLE
     .\installer\build_installer.ps1
-    .\installer\build_installer.ps1 -RebuildApp -SkipCrossCheck
+
+.EXAMPLE
+    .\installer\build_installer.ps1 -SkipApp -SkipCrossCheck
+    Iteracao rapida sobre a extensao, reaproveitando o app.exe existente.
 #>
 [CmdletBinding()]
 param(
-    [switch] $RebuildApp,
-    [switch] $SkipCrossCheck
+    [switch] $SkipApp,
+    [switch] $SkipCrossCheck,
+    [switch] $AllowSameVersion
 )
 
 $ErrorActionPreference = "Stop"
 
 $installerDir = Split-Path -Parent $MyInvocation.MyCommand.Path
 $projectRoot = Split-Path -Parent $installerDir
-$python = Join-Path $projectRoot ".venv\Scripts\python.exe"
+$appPython = Join-Path $projectRoot ".venv\Scripts\python.exe"
+$buildPython = Join-Path $installerDir ".venv-build\Scripts\python.exe"
 $appExeName = "Central_Recepcionist_conf_plus_printer.exe"
 $appExe = Join-Path $projectRoot "dist\$appExeName"
 $generated = Join-Path $installerDir "generated"
@@ -49,26 +74,32 @@ function Get-IsccPath {
 
 Set-Location $projectRoot
 
-# ---------------------------------------------------------------- 1. ambiente
-Write-Step "Ambiente Python"
-if (-not (Test-Path $python)) {
-    Write-Host "A criar .venv..."
+# ---------------------------------------------------------------- 1. ambientes
+Write-Step "Ambientes Python"
+
+if (-not (Test-Path $appPython)) {
+    Write-Host "A criar .venv (aplicacao)..."
     python -m venv (Join-Path $projectRoot ".venv")
 }
-if (-not $?) { throw "Falha ao criar o .venv" }
+& $appPython -m pip install --disable-pip-version-check -q -r (Join-Path $projectRoot "requirements.txt")
+if (-not $?) { throw "Falha a instalar requirements.txt no .venv" }
 
-& $python -m pip install --disable-pip-version-check -q -r (Join-Path $installerDir "requirements-build.txt")
-if (-not $?) { throw "Falha a instalar as dependencias de build" }
+if (-not (Test-Path $buildPython)) {
+    Write-Host "A criar installer\.venv-build (ferramentas de build)..."
+    python -m venv (Join-Path $installerDir ".venv-build")
+}
+& $buildPython -m pip install --disable-pip-version-check -q -r (Join-Path $installerDir "requirements-build.txt")
+if (-not $?) { throw "Falha a instalar requirements-build.txt" }
 
 # ------------------------------------------------------------------- 2. app.exe
 Write-Step "Aplicacao (app.exe)"
-if ($RebuildApp -or -not (Test-Path $appExe)) {
-    Write-Host "A compilar $appExeName com PyInstaller..."
-    & $python -m PyInstaller --noconfirm --clean (Join-Path $projectRoot "Central_Recepcionist_conf_plus_printer.spec")
-    if (-not $?) { throw "Falha a compilar app.py" }
+if ($SkipApp -and (Test-Path $appExe)) {
+    Write-Host "A reutilizar $appExe (-SkipApp)"
 }
 else {
-    Write-Host "A reutilizar $appExe"
+    Write-Host "A compilar $appExeName com PyInstaller..."
+    & $appPython -m PyInstaller --noconfirm --clean (Join-Path $projectRoot "Central_Recepcionist_conf_plus_printer.spec")
+    if (-not $?) { throw "Falha a compilar app.py" }
 }
 if (-not (Test-Path $appExe)) { throw "$appExe nao existe" }
 
@@ -76,13 +107,14 @@ if (-not (Test-Path $appExe)) { throw "$appExe nao existe" }
 Write-Step "Extensao do Chrome (CRX3)"
 $extArgs = @((Join-Path $installerDir "build_extension.py"))
 if (-not $SkipCrossCheck) { $extArgs += "--cross-check-chrome" }
-& $python @extArgs
+if ($AllowSameVersion) { $extArgs += "--allow-same-version" }
+& $buildPython @extArgs
 if (-not $?) { throw "Falha a preparar a extensao" }
 
 # ------------------------------------------------------------------- 4. launcher
 Write-Step "Launcher"
 New-Item -ItemType Directory -Force -Path $generated, $buildDir | Out-Null
-& $python -m PyInstaller `
+& $buildPython -m PyInstaller `
     --noconfirm --clean --onefile --noconsole `
     --name "CentralRecepcionistaLauncher" `
     --distpath $generated `
@@ -103,4 +135,5 @@ if (-not $?) { throw "Falha a compilar o instalador" }
 $setup = Join-Path $installerDir "dist\CentralRecepcionista_Setup.exe"
 Write-Step "Pronto"
 Write-Host "Instalador : $setup"
+Write-Host "app.exe    : $([math]::Round((Get-Item $appExe).Length / 1MB, 1)) MB"
 Write-Host "Extensao   : $((Get-Content (Join-Path $generated 'extension_id.txt')).Trim())"

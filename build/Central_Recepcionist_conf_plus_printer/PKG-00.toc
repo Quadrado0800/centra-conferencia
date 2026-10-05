@@ -214,11 +214,11 @@
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
    'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\pymupdf\\mupdfcpp64.dll',
    'BINARY'),
-  ('MSVCP140.dll', 'C:\\Windows\\system32\\MSVCP140.dll', 'BINARY'),
   ('python3.dll',
    'C:\\Program '
    'Files\\WindowsApps\\PythonSoftwareFoundation.Python.3.13_3.13.3824.0_x64__qbz5n2kfra8p0\\python3.dll',
    'BINARY'),
+  ('MSVCP140.dll', 'C:\\Windows\\system32\\MSVCP140.dll', 'BINARY'),
   ('templates\\conferencia.html',
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
    'repos\\IA_made\\bobeirinhas\\centra-conferencia\\templates\\conferencia.html',
@@ -239,21 +239,21 @@
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
    'repos\\IA_made\\bobeirinhas\\centra-conferencia\\tools\\SumatraPDF-settings.txt',
    'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\REQUESTED',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\REQUESTED',
-   'DATA'),
   ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\RECORD',
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
    'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\RECORD',
    'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\METADATA',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\METADATA',
-   'DATA'),
   ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\licenses\\LICENSE',
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
    'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\licenses\\LICENSE',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\top_level.txt',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\top_level.txt',
+   'DATA'),
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\REQUESTED',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\REQUESTED',
    'DATA'),
   ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\INSTALLER',
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
@@ -263,118 +263,38 @@
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
    'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\WHEEL',
    'DATA'),
-  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\top_level.txt',
+  ('setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\METADATA',
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\top_level.txt',
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\importlib_metadata-8.7.1.dist-info\\METADATA',
    'DATA'),
   ('setuptools\\_vendor\\jaraco\\text\\Lorem ipsum.txt',
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
    'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\setuptools\\_vendor\\jaraco\\text\\Lorem '
    'ipsum.txt',
    'DATA'),
-  ('certifi\\cacert.pem',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\certifi\\cacert.pem',
-   'DATA'),
   ('certifi\\py.typed',
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
    'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\certifi\\py.typed',
    'DATA'),
-  ('werkzeug-3.1.8.dist-info\\INSTALLER',
+  ('certifi\\cacert.pem',
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\werkzeug-3.1.8.dist-info\\INSTALLER',
-   'DATA'),
-  ('itsdangerous-2.2.0.dist-info\\WHEEL',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\WHEEL',
-   'DATA'),
-  ('itsdangerous-2.2.0.dist-info\\INSTALLER',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\INSTALLER',
-   'DATA'),
-  ('flask-3.1.3.dist-info\\INSTALLER',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\flask-3.1.3.dist-info\\INSTALLER',
-   'DATA'),
-  ('click-8.5.0.dist-info\\licenses\\LICENSE.txt',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\click-8.5.0.dist-info\\licenses\\LICENSE.txt',
-   'DATA'),
-  ('itsdangerous-2.2.0.dist-info\\RECORD',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\RECORD',
-   'DATA'),
-  ('click-8.5.0.dist-info\\WHEEL',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\click-8.5.0.dist-info\\WHEEL',
-   'DATA'),
-  ('werkzeug-3.1.8.dist-info\\licenses\\LICENSE.txt',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\werkzeug-3.1.8.dist-info\\licenses\\LICENSE.txt',
-   'DATA'),
-  ('markupsafe-3.0.3.dist-info\\WHEEL',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\WHEEL',
-   'DATA'),
-  ('markupsafe-3.0.3.dist-info\\RECORD',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\RECORD',
-   'DATA'),
-  ('flask-3.1.3.dist-info\\licenses\\LICENSE.txt',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\flask-3.1.3.dist-info\\licenses\\LICENSE.txt',
-   'DATA'),
-  ('markupsafe-3.0.3.dist-info\\METADATA',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\METADATA',
-   'DATA'),
-  ('click-8.5.0.dist-info\\RECORD',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\click-8.5.0.dist-info\\RECORD',
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\certifi\\cacert.pem',
    'DATA'),
   ('itsdangerous-2.2.0.dist-info\\LICENSE.txt',
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
    'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\LICENSE.txt',
    'DATA'),
-  ('werkzeug-3.1.8.dist-info\\METADATA',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\werkzeug-3.1.8.dist-info\\METADATA',
-   'DATA'),
-  ('werkzeug-3.1.8.dist-info\\RECORD',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\werkzeug-3.1.8.dist-info\\RECORD',
-   'DATA'),
-  ('flask-3.1.3.dist-info\\RECORD',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\flask-3.1.3.dist-info\\RECORD',
-   'DATA'),
   ('markupsafe-3.0.3.dist-info\\top_level.txt',
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
    'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\top_level.txt',
-   'DATA'),
-  ('itsdangerous-2.2.0.dist-info\\METADATA',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\METADATA',
-   'DATA'),
-  ('flask-3.1.3.dist-info\\REQUESTED',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\flask-3.1.3.dist-info\\REQUESTED',
-   'DATA'),
-  ('flask-3.1.3.dist-info\\entry_points.txt',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\flask-3.1.3.dist-info\\entry_points.txt',
-   'DATA'),
-  ('flask-3.1.3.dist-info\\WHEEL',
-   'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\flask-3.1.3.dist-info\\WHEEL',
    'DATA'),
   ('flask-3.1.3.dist-info\\METADATA',
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
    'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\flask-3.1.3.dist-info\\METADATA',
    'DATA'),
-  ('click-8.5.0.dist-info\\INSTALLER',
+  ('markupsafe-3.0.3.dist-info\\WHEEL',
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\click-8.5.0.dist-info\\INSTALLER',
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\WHEEL',
    'DATA'),
   ('werkzeug-3.1.8.dist-info\\WHEEL',
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
@@ -384,13 +304,93 @@
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
    'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\click-8.5.0.dist-info\\METADATA',
    'DATA'),
+  ('markupsafe-3.0.3.dist-info\\licenses\\LICENSE.txt',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\licenses\\LICENSE.txt',
+   'DATA'),
+  ('flask-3.1.3.dist-info\\entry_points.txt',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\flask-3.1.3.dist-info\\entry_points.txt',
+   'DATA'),
+  ('itsdangerous-2.2.0.dist-info\\INSTALLER',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\INSTALLER',
+   'DATA'),
+  ('werkzeug-3.1.8.dist-info\\RECORD',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\werkzeug-3.1.8.dist-info\\RECORD',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\RECORD',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\RECORD',
+   'DATA'),
+  ('click-8.5.0.dist-info\\INSTALLER',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\click-8.5.0.dist-info\\INSTALLER',
+   'DATA'),
+  ('click-8.5.0.dist-info\\RECORD',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\click-8.5.0.dist-info\\RECORD',
+   'DATA'),
+  ('werkzeug-3.1.8.dist-info\\licenses\\LICENSE.txt',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\werkzeug-3.1.8.dist-info\\licenses\\LICENSE.txt',
+   'DATA'),
+  ('click-8.5.0.dist-info\\WHEEL',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\click-8.5.0.dist-info\\WHEEL',
+   'DATA'),
+  ('itsdangerous-2.2.0.dist-info\\RECORD',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\RECORD',
+   'DATA'),
+  ('werkzeug-3.1.8.dist-info\\METADATA',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\werkzeug-3.1.8.dist-info\\METADATA',
+   'DATA'),
+  ('flask-3.1.3.dist-info\\INSTALLER',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\flask-3.1.3.dist-info\\INSTALLER',
+   'DATA'),
+  ('itsdangerous-2.2.0.dist-info\\METADATA',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\METADATA',
+   'DATA'),
+  ('flask-3.1.3.dist-info\\licenses\\LICENSE.txt',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\flask-3.1.3.dist-info\\licenses\\LICENSE.txt',
+   'DATA'),
+  ('werkzeug-3.1.8.dist-info\\INSTALLER',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\werkzeug-3.1.8.dist-info\\INSTALLER',
+   'DATA'),
+  ('markupsafe-3.0.3.dist-info\\METADATA',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\METADATA',
+   'DATA'),
+  ('flask-3.1.3.dist-info\\RECORD',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\flask-3.1.3.dist-info\\RECORD',
+   'DATA'),
+  ('itsdangerous-2.2.0.dist-info\\WHEEL',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\itsdangerous-2.2.0.dist-info\\WHEEL',
+   'DATA'),
+  ('flask-3.1.3.dist-info\\REQUESTED',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\flask-3.1.3.dist-info\\REQUESTED',
+   'DATA'),
+  ('flask-3.1.3.dist-info\\WHEEL',
+   'C:\\Users\\isaac f\\Documents\\My codes\\git '
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\flask-3.1.3.dist-info\\WHEEL',
+   'DATA'),
   ('markupsafe-3.0.3.dist-info\\INSTALLER',
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
    'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\INSTALLER',
    'DATA'),
-  ('markupsafe-3.0.3.dist-info\\licenses\\LICENSE.txt',
+  ('click-8.5.0.dist-info\\licenses\\LICENSE.txt',
    'C:\\Users\\isaac f\\Documents\\My codes\\git '
-   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\markupsafe-3.0.3.dist-info\\licenses\\LICENSE.txt',
+   'repos\\IA_made\\bobeirinhas\\centra-conferencia\\.venv\\Lib\\site-packages\\click-8.5.0.dist-info\\licenses\\LICENSE.txt',
    'DATA'),
   ('base_library.zip',
    'C:\\Users\\isaac f\\Documents\\My codes\\git '

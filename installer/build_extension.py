@@ -270,6 +270,64 @@ def build_vars_iss(ext_id: str, version: str) -> str:
 
 
 # --------------------------------------------------------------------------
+# controlo de versão: o Chrome ignora atualizações com a mesma versão
+# --------------------------------------------------------------------------
+STATE_FILE = GENERATED / "build-state.json"
+
+
+def content_hash(ext_dir: Path) -> str:
+    digest = hashlib.sha256()
+    for path in sorted(ext_dir.rglob("*")):
+        if not path.is_file():
+            continue
+        digest.update(path.relative_to(ext_dir).as_posix().encode("utf-8"))
+        digest.update(b"\x00")
+        digest.update(path.read_bytes())
+        digest.update(b"\x00")
+    return digest.hexdigest()
+
+
+def read_state() -> dict:
+    try:
+        return json.loads(STATE_FILE.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {}
+
+
+def version_guard(ext_dir: Path, version: str, allow_same_version: bool) -> bool:
+    """Recusa publicar conteudo novo com a versao anterior.
+
+    O Chrome descarta uma atualizacao cuja versao nao seja superior, portanto
+    publicar sem subir a versao resulta numa actualizacao silenciosamente
+    ignorada em todas as maquinas ja instaladas.
+    """
+    digest = content_hash(ext_dir)
+    previous = read_state()
+    changed = previous.get("extension_sha256") not in (None, digest)
+    same_version = previous.get("version") == version
+
+    if changed and same_version and not allow_same_version:
+        print(f"[ext] ERRO: a extensão mudou mas continua na versão {version}.")
+        print("      O Chrome ignora atualizações com a mesma versão, por isso")
+        print("      as máquinas já instaladas não receberiam esta alteração.")
+        print('      Suba "version" em CRM-LIKE_conference/desbravador-conferencia/manifest.json')
+        print("      (ou use --allow-same-version se for mesmo o que quer).")
+        return False
+
+    return True
+
+
+def write_state(ext_dir: Path, version: str) -> None:
+    STATE_FILE.write_text(
+        json.dumps(
+            {"extension_sha256": content_hash(ext_dir), "version": version}, indent=2
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
+
+# --------------------------------------------------------------------------
 # verificação cruzada com o empacotador do próprio Chrome
 # --------------------------------------------------------------------------
 def find_chrome() -> Path | None:
@@ -338,6 +396,11 @@ def main() -> int:
         action="store_true",
         help="empacota também com o Chrome e compara o resultado com o nosso",
     )
+    parser.add_argument(
+        "--allow-same-version",
+        action="store_true",
+        help="permite publicar extensão alterada sem subir a versão (perigoso)",
+    )
     args = parser.parse_args()
 
     GENERATED.mkdir(parents=True, exist_ok=True)
@@ -349,6 +412,9 @@ def main() -> int:
     version = str(manifest.get("version", "0"))
     name = str(manifest.get("name", "extensao"))
 
+    if not version_guard(ext_dir, version, args.allow_same_version):
+        return 2
+
     crx_bytes = pack_crx3(zip_extension(ext_dir), key)
     verify_crx3(crx_bytes)  # nunca escrever um CRX que não verificamos
 
@@ -356,6 +422,7 @@ def main() -> int:
     (GENERATED / "updates.xml").write_text(updates_xml(ext_id, version), encoding="utf-8")
     (GENERATED / "build_vars.iss").write_text(build_vars_iss(ext_id, version), encoding="utf-8")
     (GENERATED / "extension_id.txt").write_text(ext_id + "\n", encoding="utf-8")
+    write_state(ext_dir, version)
 
     print(f"[ext] {name} v{version}")
     print(f"[ext] id    : {ext_id}")
