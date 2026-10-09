@@ -122,7 +122,7 @@
   left: 0;
   top: 50%;
   transform: translate(-50%, -50%);
-  display: flex;
+  display: none;              /* só existe com a barra aberta — ver .aberto abaixo */
   align-items: center;
   justify-content: center;
   width: 26px;
@@ -139,6 +139,8 @@
   box-shadow: -2px 2px 8px rgba(0, 0, 0, .18);
   transition: background .15s ease, width .15s ease;
 }
+#ext-sidebar.aberto .ext-sb-close { display: flex; }
+
 #ext-sidebar .ext-sb-close:hover {
   background: #2f7ec4;
   width: 30px;

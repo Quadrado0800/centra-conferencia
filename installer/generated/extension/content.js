@@ -1011,7 +1011,7 @@
         <span class="ext-sb-title"><i class="ace-icon fa fa-check-square-o"></i> Modo conferência</span>
       </div>
       <button type="button" class="ext-sb-close" title="Recolher barra lateral" aria-label="Recolher barra lateral">
-        <i class="ace-icon fa fa-chevron-left"></i>
+        <i class="ace-icon fa fa-chevron-right"></i>
       </button>
       <div class="ext-sb-stats">
         <div class="ext-sb-stat"><span>Selecionadas</span><span class="ext-sb-stat-val" id="ext-sb-stat-sel">0</span></div>

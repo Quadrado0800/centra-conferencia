@@ -1,0 +1,13 @@
+# Ambientes virtuais Python
+.venv/
+installer/.venv-build/
+
+# Artefactos regeneráveis do PyInstaller
+build/
+installer/build/
+__pycache__/
+*.pyc
+
+# Sistema
+Thumbs.db
+desktop.ini
