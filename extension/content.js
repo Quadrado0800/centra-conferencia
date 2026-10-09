@@ -215,7 +215,7 @@
     .cafe .box .val{font-size:22px;font-weight:700;color:#3f4a54;margin-top:3px}
     .cafe .box.full{grid-column:1/-1}
     .cafe .box.full .val{font-size:28px;color:#428ece}
-    .msg{margin-top:2px;white-space:pre-wrap;padding:10px 14px;border-radius:6px;
+    .msg{margin:0 0 14px;white-space:pre-wrap;padding:10px 14px;border-radius:6px;
       background:#eef4fb;border:1px solid #d7e5f5;color:#2b5c86;display:none}
     .msg.show{display:block}
     .msg.erro{background:#fdeaea;border-color:#f6cfd0;color:#b02a37}
@@ -227,6 +227,8 @@
       <div class="hdr">
         <button class="pill wait" id="st-pill" title="Clique para sincronizar a sessão">● Verificando sessão…</button>
       </div>
+
+      <div class="msg" id="msg"></div>
 
       <div class="card">
         <div class="toolbar">
@@ -277,8 +279,6 @@
           <div class="cafe" id="cafe"><div class="vazio">Clique em "Atualizar".</div></div>
         </div>
       </div>
-
-      <div class="msg" id="msg"></div>
     </div>
   `;
 

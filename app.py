@@ -407,36 +407,29 @@ def baixar_relatorio_governanca(session, andares, dias_entre_trocas=2):
 
 def detectar_andares_governanca():
     """
-    Detecta a estrutura dos andares a partir dos quartos
-    carregados pelo Desbravador.
+    Detecta a estrutura dos andares a partir do MAPA de UHs.
 
-    Se houver quarto começando com 0:
+    O MAPA de UHs lista todas as UHs do hotel, ocupadas ou não,
+    então a estrutura fica estável (ao contrário das reservas, que
+    só aparecem depois do check-in).
+
+    Se alguma UH pertencer ao andar 0 (térreo):
         0, 1, 2, 3
 
     Caso contrário:
         1, 2, 3, 4
     """
 
-    reservas = listar_reservas_atuais()
+    uhs = buscar_mapa_uhs().get("uhs") or []
 
-    quartos = []
-
-    for reserva in reservas:
-        quartos.extend(reserva.get("quartos", []))
-
-    if not quartos:
+    if not uhs:
         raise RuntimeError(
             "Não foi possível detectar os andares: "
-            "nenhum quarto foi encontrado."
+            "o MAPA de UHs não retornou nenhuma UH."
         )
 
-    for quarto in quartos:
-
-        # Remove espaços e caracteres não numéricos
-        numero = re.sub(r"\D", "", str(quarto))
-
-        if numero and numero[0] == "0":
-            return [0, 1, 2, 3]
+    if any(_uh_no_andar_zero(uh) for uh in uhs):
+        return [0, 1, 2, 3]
 
     return [1, 2, 3, 4]
 
@@ -1540,6 +1533,45 @@ def _url_mapa_uh(filtro=None):
     json_str = json.dumps(f, separators=(",", ":"), ensure_ascii=False)
     # requests cuida do encode; basta passar como params
     return URL_MAPA_UH_JSON, {"json": json_str}
+
+
+def buscar_mapa_uhs(session=None):
+    """
+    Baixa o MAPA de UHs do Desbravador e devolve o JSON cru.
+
+    O MAPA lista todas as UHs do hotel, independente de estarem
+    ocupadas, por isso é a base para descobrir a estrutura de
+    andares da pousada.
+    """
+    session = session or build_session()
+    url, params = _url_mapa_uh()
+
+    r = session.get(url, params=params,
+                    headers=_headers_mapa_uh(), timeout=30)
+    r.raise_for_status()
+
+    return r.json()
+
+
+def _uh_no_andar_zero(uh):
+    """Indica se a UH do MAPA pertence ao andar 0 (térreo)."""
+    pop = uh.get("popover") or {}
+
+    andar = pop.get("andar")
+
+    if andar is not None and str(andar).strip() != "":
+        try:
+            return int(str(andar).strip()) == 0
+        except (TypeError, ValueError):
+            pass
+
+    # Sem o andar no MAPA, cai para o primeiro dígito do número da UH
+    numero = re.sub(
+        r"\D", "",
+        str(uh.get("descricao") or pop.get("identificacaoUh") or "")
+    )
+
+    return bool(numero) and numero.startswith("0")
 
 
 @app.get("/api/mapa-uhs")

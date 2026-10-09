@@ -229,7 +229,26 @@
     .cnt{background:#eef4fb;border:1px solid #d7e5f5;color:#3a6a9c;
       padding:4px 10px;border-radius:999px;font-size:12px}
     .lista{display:grid;gap:8px}
+    .lista-topo{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:12px}
+    .lista-toggle{display:inline-flex;align-items:center;gap:7px}
+    /* Seta desenhada com bordas — a fonte de ícones da página não atravessa o shadow DOM */
+    .lista-seta{display:inline-block;width:7px;height:7px;border-right:2px solid #66707a;
+      border-bottom:2px solid #66707a;transform:rotate(45deg)}
+    .lista-toggle[aria-expanded="true"] .lista-seta{transform:rotate(-135deg)}
+    .lista-toggle-qtd{background:#eef4fb;border:1px solid #d7e5f5;color:#3a6a9c;
+      border-radius:999px;padding:1px 8px;font-size:11.5px;font-weight:700}
+    .lista-dica{color:#8a949e;font-size:12px}
+    .lista-preview{display:flex;gap:6px;overflow-x:auto;padding:9px 0 2px}
+    .lista-preview[hidden]{display:none}
+    .lista-chip{flex:0 0 auto;background:#f4f7fa;border:1px solid #e2e8ee;border-radius:5px;
+      padding:4px 9px;font-size:11.5px;color:#4a5560;white-space:nowrap}
+    .lista-chip b{color:#2b5c86;font-weight:700}
+    .lista-chip.sel{background:#e9f7ed;border-color:#bfe3c8;color:#1a7f37}
+    .lista-chip.sel b{color:#1a7f37}
+    .lista-mais{flex:0 0 auto;display:inline-flex;align-items:center;padding:4px 6px;
+      color:#8a949e;font-size:13px;font-weight:700;letter-spacing:1.5px}
     .lista-central{margin-top:14px;padding-top:12px;border-top:1px solid #f0f2f5}
+    .lista-central.recolhida{display:none}
     .reserva{display:flex;align-items:flex-start;gap:10px;padding:11px 13px;
       border:1px solid #e5e9ee;border-radius:6px;cursor:pointer}
     .reserva:hover{border-color:#bcd2e8;background:#fbfdff}
@@ -243,7 +262,7 @@
     .cafe .box .val{font-size:22px;font-weight:700;color:#3f4a54;margin-top:3px}
     .cafe .box.full{grid-column:1/-1}
     .cafe .box.full .val{font-size:28px;color:#428ece}
-    .msg{margin-top:2px;white-space:pre-wrap;padding:10px 14px;border-radius:6px;
+    .msg{margin:0 0 14px;white-space:pre-wrap;padding:10px 14px;border-radius:6px;
       background:#eef4fb;border:1px solid #d7e5f5;color:#2b5c86;display:none}
     .msg.show{display:block}
     .msg.erro{background:#fdeaea;border-color:#f6cfd0;color:#b02a37}
@@ -260,6 +279,8 @@
           Chave Pix e contato para suporte: <b>(94) 99663-5669</b>
         </div>
       </div>
+
+      <div class="msg" id="msg"></div>
 
       <div class="grid-principal">
         <!-- Coluna esquerda: check-ins -->
@@ -287,6 +308,17 @@
             <button class="btn btn-primary" id="btn-imprimir" disabled>Imprimir selecionados</button>
           </div>
 
+          <div class="lista-topo">
+            <button type="button" class="btn btn-default lista-toggle" id="btn-lista"
+                    aria-expanded="true" aria-controls="lista" title="Recolher a lista de reservas">
+              <span class="lista-seta" aria-hidden="true"></span><span>Reservas</span>
+              <span class="lista-toggle-qtd" id="btn-lista-qtd">0</span>
+            </button>
+            <span class="lista-dica" id="lista-dica" hidden>lista recolhida</span>
+          </div>
+
+          <div class="lista-preview" id="lista-preview" hidden></div>
+
           <div id="lista" class="lista-central"><div class="vazio">Carregando check-ins…</div></div>
         </div>
 
@@ -312,8 +344,6 @@
           </label>
         </div>
       </div>
-
-      <div class="msg" id="msg"></div>
     </div>
   `;
 
@@ -460,18 +490,41 @@
     }
 
     /* ---------- reservas ---------- */
+    // Recolhe apenas a lista de reservas: o resto do cartão (Ficha, tempo de
+    // espera, "Marcar todos", "Imprimir selecionados") continua sempre visível.
+    let listaRecolhida = false;
+
+    function aplicarLista() {
+      const lista = $("lista");
+      const btn = $("btn-lista");
+      if (!lista || !btn) return;
+      lista.classList.toggle("recolhida", listaRecolhida);
+      $("lista-preview").hidden = !listaRecolhida;
+      $("lista-dica").hidden = !listaRecolhida;
+      btn.setAttribute("aria-expanded", String(!listaRecolhida));
+      btn.title = listaRecolhida ? "Expandir a lista de reservas" : "Recolher a lista de reservas";
+    }
+
     function atualizarContadores() {
       const sel = sh.querySelectorAll('input[name="reservaSelecionada"]:checked').length;
       const tot = sh.querySelectorAll('input[name="reservaSelecionada"]').length;
       $("sel-count").textContent = sel + " selecionado(s)";
       $("btn-imprimir").disabled = sel === 0;
       if (tot) $("total").textContent = tot + " apartamento(s)";
+
+      // mantém a prévia horizontal (visível com a lista recolhida) em sincronia
+      sh.querySelectorAll(".lista-chip[data-id]").forEach(c => {
+        const chk = sh.querySelector('input[name="reservaSelecionada"][value="' + c.dataset.id + '"]');
+        c.classList.toggle("sel", !!chk && chk.checked);
+      });
     }
 
     function renderReservas(reservas) {
       const box = $("lista");
       if (!reservas.length) {
         box.innerHTML = '<div class="vazio">Nenhum check-in encontrado.</div>';
+        $("btn-lista-qtd").textContent = "0";
+        $("lista-preview").innerHTML = "";
         atualizarContadores();
         return;
       }
@@ -482,6 +535,20 @@
           '<div class="qs">Quartos: ' + ((x.quartos && x.quartos.length) ? x.quartos.join(", ") : "não informado") + "</div></span>" +
         "</label>"
       ).join("") + "</div>";
+
+      // prévia horizontal: no máximo 3 UHs, com "…" a indicar que há mais
+      const LIMITE_PREVIA = 3;
+      $("btn-lista-qtd").textContent = String(reservas.length);
+      const previa = reservas.slice(0, LIMITE_PREVIA).map(x =>
+        '<span class="lista-chip" data-id="' + x.id + '">#' + x.id + " · <b>" +
+        ((x.quartos && x.quartos.length) ? x.quartos.join(", ") : "—") + "</b></span>"
+      );
+      if (reservas.length > LIMITE_PREVIA) {
+        const restantes = reservas.length - LIMITE_PREVIA;
+        previa.push('<span class="lista-mais" title="mais ' + restantes +
+          (restantes === 1 ? " reserva" : " reservas") + '">…</span>');
+      }
+      $("lista-preview").innerHTML = previa.join("");
 
       box.querySelectorAll('input[name="reservaSelecionada"]').forEach(i =>
         i.addEventListener("change", atualizarContadores));
@@ -657,6 +724,11 @@ d.uh_amanha + " UHs | pax " + d.pax_amanha;
       atualizarContadores();
     });
     $("btn-imprimir").addEventListener("click", imprimirSelecionados);
+    $("btn-lista").addEventListener("click", () => {
+      listaRecolhida = !listaRecolhida;
+      aplicarLista();
+    });
+    aplicarLista();
     $("btn-checkin").addEventListener("click", (e) =>
       acaoRelatorio(e.currentTarget, "Relatório de Check-in do dia", "/api/relatorio/checkin", {}));
     $("btn-governanca").addEventListener("click", (e) =>

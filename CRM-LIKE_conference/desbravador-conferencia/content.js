@@ -958,6 +958,16 @@
     const m = String(iso || "").match(/(\d{4})-(\d{2})-(\d{2})/);
     return m ? (m[3] + "/" + m[2] + "/" + m[1]) : "";
   }
+  /* Nas UHs que saem no proprio dia o Desbravador escreve "Saída hoje" em vez
+     de uma data. Sem tratar isso o filtro escondia justamente essas UHs.
+     O estado do card varia (OCUPADA_CHECKOUT, OCUPADA_CHECKIN_CHECKOUT, ...),
+     por isso a decisao sai do texto da data e nao do nome do estado. */
+  function saidaParaISO(txt) {
+    const t = String(txt || "").replace(/^Saída\s*/i, "").trim();
+    const iso = dataBRparaISO(t);
+    if (iso) return iso;
+    return /\bhoje\b/i.test(t) ? hojeISO() : "";
+  }
   function filtroCheckoutLigado() {
     return extAtiva && estaNoMapa() &&
            !!document.getElementById("ext-sb-apenas-checkout")?.checked;
@@ -967,11 +977,14 @@
     const cards = [...document.querySelectorAll(".uh-main")];
     const ligado = filtroCheckoutLigado();
     const alvoISO = document.getElementById("ext-sb-data")?.value || "";
+    // Universo do filtro: apenas UHs ocupadas. As livres (LIVRE /
+    // LIVRE_CHECKIN) não têm saída para conferir e inflavam o total.
+    const ocupadas = cards.filter(c => estaOcupada(c)).length;
     let visiveis = 0;
 
     cards.forEach(c => {
       if (!ligado) { c.classList.remove("ext-uh-oculta"); visiveis++; return; }
-      const casa = !!alvoISO && dataBRparaISO(extrairInfoDaUH(c).saida) === alvoISO;
+      const casa = !!alvoISO && saidaParaISO(extrairInfoDaUH(c).saida) === alvoISO;
       c.classList.toggle("ext-uh-oculta", !casa);
       if (casa) visiveis++;
     });
@@ -984,8 +997,8 @@
       return;
     }
     aviso.style.display = "block";
-    aviso.innerHTML = "Mostrando <b>" + visiveis + "</b> de " + cards.length +
-                      " UHs com saída em <b>" + isoParaBR(alvoISO) + "</b>.";
+    aviso.innerHTML = "Mostrando <b>" + visiveis + "</b> de " + ocupadas +
+                      " UHs ocupadas com saída em <b>" + isoParaBR(alvoISO) + "</b>.";
   }
 
   function injetarSidebar() {
@@ -996,8 +1009,10 @@
     sb.innerHTML = `
       <div class="ext-sb-head">
         <span class="ext-sb-title"><i class="ace-icon fa fa-check-square-o"></i> Modo conferência</span>
-        <button type="button" class="ext-sb-close" title="Recolher">×</button>
       </div>
+      <button type="button" class="ext-sb-close" title="Recolher barra lateral" aria-label="Recolher barra lateral">
+        <i class="ace-icon fa fa-chevron-right"></i>
+      </button>
       <div class="ext-sb-stats">
         <div class="ext-sb-stat"><span>Selecionadas</span><span class="ext-sb-stat-val" id="ext-sb-stat-sel">0</span></div>
         <div class="ext-sb-stat"><span>Verificadas</span><span class="ext-sb-stat-val ok" id="ext-sb-stat-ver">0</span></div>
@@ -1010,8 +1025,9 @@
           entre as UHs pelo extrato.
         </p>
         <div class="ext-sb-field">
-          <label class="ext-sb-check">
+          <label class="ext-sb-switch">
             <input type="checkbox" id="ext-sb-apenas-checkout">
+            <span class="ext-sb-switch-ui" aria-hidden="true"></span>
             <span>Apenas check-outs (saída)</span>
           </label>
           <label for="ext-sb-data">Data de check-out (saída)</label>
@@ -1053,6 +1069,8 @@
     sb.querySelector(".ext-sb-close").addEventListener("click", () => {
       sidebarAberto = false; aplicarSidebar();
     });
+
+    window.addEventListener("resize", ajustarTopoDaBarra);
 
     // Campo de data: valor padrão + botões de um dia para frente/trás
     const dataInput = sb.querySelector("#ext-sb-data");
@@ -1096,6 +1114,43 @@
     atualizarEstatisticasSidebar();
   }
 
+  /* O cabeçalho fixo da aplicação não tem altura constante (já medimos 72px
+     numa tela e 104px noutra) e fica ACIMA da barra (z-index 1030 contra os
+     1029 da barra). Fixar o valor no CSS fazia o título e o "×" antigo
+     sumirem atrás dele. Aqui medimos o que pode tapar o topo da barra. */
+  function ajustarTopoDaBarra() {
+    const sb = document.getElementById("ext-sidebar");
+    if (!sb) return;
+
+    const larguraJanela = window.innerWidth;
+    const alturaJanela = window.innerHeight;
+    let fundo = 0;
+
+    const visitar = (el, nivel) => {
+      if (nivel > 4 || el.nodeType !== 1) return;
+      if (el === sb || sb.contains(el)) return;   // a própria barra não conta
+      const estilo = getComputedStyle(el);
+      if (estilo.position === "fixed" || estilo.position === "sticky") {
+        const r = el.getBoundingClientRect();
+        const z = parseInt(estilo.zIndex, 10);
+        const zEfetivo = isNaN(z) ? 0 : z;
+        // tem de ser uma faixa no topo: larga, baixa e a pintar na mesma
+        // camada da barra (ou acima). Isso exclui painéis de altura total.
+        if (r.top <= 4 && r.height > 20 && r.height <= alturaJanela * 0.4 &&
+            r.width >= larguraJanela * 0.5 && zEfetivo >= 1029) {
+          fundo = Math.max(fundo, r.bottom);
+        }
+      }
+      for (const filho of el.children) visitar(filho, nivel + 1);
+    };
+
+    for (const filho of document.body.children) visitar(filho, 1);
+    if (fundo > 0) {
+      // rede de segurança: nenhuma medição pode empurrar a barra para meio ecrã
+      sb.style.paddingTop = Math.round(Math.min(fundo, alturaJanela * 0.5)) + "px";
+    }
+  }
+
   function aplicarSidebar() {
     const sb = document.getElementById("ext-sidebar");
     const shy = document.getElementById("ext-sidebar-toggle");
@@ -1106,6 +1161,7 @@
       shy.style.display = "none";
       return;
     }
+    ajustarTopoDaBarra();
     if (sidebarAberto) {
       sb.classList.add("aberto");
       shy.style.display = "none";
@@ -1210,7 +1266,7 @@
     cards.forEach(c => {
       const i = extrairInfoDaUH(c);
       if (!i.numero) return;
-      if (porData && dataBRparaISO(i.saida) !== dataISO) return;
+      if (porData && saidaParaISO(i.saida) !== dataISO) return;
       universo.push(i);
     });
 

@@ -85,7 +85,10 @@ Root: HKLM64; Subkey: "{#ChromePolicyKey}"; ValueType: string; ValueName: "1"; V
 Root: HKLM32; Subkey: "{#ChromePolicyKey}"; ValueType: string; ValueName: "1"; ValueData: "{#ExtId};{#ExtUpdateUrl}"; Flags: uninsdeletevalue
 
 [Run]
-Filename: "{app}\{#MyAppLauncher}"; Description: "Iniciar a {#MyAppName} agora"; Flags: postinstall nowait skipifsilent
+; Sempre (inclusive em /VERYSILENT): volta a pôr o launcher de pé depois de
+; substituir os ficheiros, para o app não ficar em baixo até ao próximo logon.
+Filename: "{app}\{#MyAppLauncher}"; Flags: nowait runhidden
+; Opcional, só no assistente
 Filename: "{app}\{#MyAppLauncher}"; Parameters: "--chrome-extension-help"; Description: "Abrir o Chrome para confirmar/instalar a extensao"; Flags: postinstall nowait skipifsilent unchecked
 
 [UninstallDelete]
