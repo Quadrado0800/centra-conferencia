@@ -310,7 +310,7 @@
 
           <div class="lista-topo">
             <button type="button" class="btn btn-default lista-toggle" id="btn-lista"
-                    aria-expanded="true" aria-controls="lista" title="Recolher a lista de reservas">
+                    aria-expanded="false" aria-controls="lista" title="Expandir a lista de reservas">
               <span class="lista-seta" aria-hidden="true"></span><span>Reservas</span>
               <span class="lista-toggle-qtd" id="btn-lista-qtd">0</span>
             </button>
@@ -492,7 +492,9 @@
     /* ---------- reservas ---------- */
     // Recolhe apenas a lista de reservas: o resto do cartão (Ficha, tempo de
     // espera, "Marcar todos", "Imprimir selecionados") continua sempre visível.
-    let listaRecolhida = false;
+    // Abre SEMPRE recolhida — a lista completa só ocupa espaço se o utilizador
+    // a quiser ver (o estado não é persistido: cada abertura começa recolhida).
+    let listaRecolhida = true;
 
     function aplicarLista() {
       const lista = $("lista");
