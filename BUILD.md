@@ -66,11 +66,39 @@ Não é preciso subir a versão se apenas mexeu em `app.py`, no
 | 2. `app.exe` | `dist\Central_Recepcionist_conf_plus_printer.exe` (~41 MB) |
 | 3. Extensão | `central_recepcao.crx` + `updates.xml` em `installer\generated\` |
 | 4. Launcher | `installer\generated\CentralRecepcionistaLauncher.exe` |
-| 5. Inno Setup | `installer\dist\CentralRecepcionista_Setup.exe` (~50 MB) |
+| 5. Updater | `installer\generated\CentralRecepcionistaUpdater.exe` |
+| 6. Inno Setup | `installer\dist\CentralRecepcionista_Setup.exe` (~50 MB) |
 
 O passo 3 é a rede de segurança: o CRX é empacotado pelo código do projeto **e**
 pelo próprio Chrome (`--pack-extension`), assinatura conferida e ID comparado.
 Se não bater, o build falha em vez de emitir um CRX inválido.
+
+O instalador também inclui um updater separado. Ele mantém uma instância leve
+no arranque do Windows, que verifica diariamente às 12:00 locais. O processo
+residente só aceita assets
+publicados numa GitHub Release cujo digest SHA-256 seja fornecido pela API do
+GitHub. Ao instalar, o updater destaca uma cópia temporária de si próprio para
+que o instalador possa substituir os ficheiros sem bloquear o processo e
+reinicia a nova versão depois da atualização.
+O instalador inicia o updater imediatamente e a tarefa de arranque volta a
+iniciá-lo no próximo logon.
+Se a instalação já tiver um updater, o instalador interrompe-o pelo marcador
+`.updater-stop` antes de substituir o executável; se não tiver, o ficheiro é
+instalado normalmente pela seção `[Files]`.
+
+### Publicar uma release
+
+Suba a versão em `CRM-LIKE_conference/desbravador-conferencia/manifest.json`,
+gere um commit e publique uma tag correspondente:
+
+```powershell
+git tag v2.1.7
+git push origin v2.1.7
+```
+
+O workflow `.github/workflows/release.yml` compila o instalador em Windows,
+confirma que a tag corresponde à versão da extensão e publica o
+`CentralRecepcionista_Setup.exe` na GitHub Release.
 
 ### Dois ambientes Python, de propósito
 

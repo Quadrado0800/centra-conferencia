@@ -421,6 +421,7 @@ def main() -> int:
     (GENERATED / CRX_NAME).write_bytes(crx_bytes)
     (GENERATED / "updates.xml").write_text(updates_xml(ext_id, version), encoding="utf-8")
     (GENERATED / "build_vars.iss").write_text(build_vars_iss(ext_id, version), encoding="utf-8")
+    (GENERATED / "version.txt").write_text(version + "\n", encoding="utf-8")
     (GENERATED / "extension_id.txt").write_text(ext_id + "\n", encoding="utf-8")
     write_state(ext_dir, version)
 

@@ -13,7 +13,8 @@
       2. reconstroi dist\Central_Recepcionist_conf_plus_printer.exe (app.py);
       3. re-empacota a extensao do Chrome (chave estavel, CRX3, updates.xml);
       4. reconstroi CentralRecepcionistaLauncher.exe;
-      5. gera installer\dist\CentralRecepcionista_Setup.exe.
+      5. reconstroi CentralRecepcionistaUpdater.exe;
+      6. gera installer\dist\CentralRecepcionista_Setup.exe.
 
     O Setup.exe e o UNICO ficheiro a distribuir -- traz tudo dentro.
 
@@ -126,7 +127,21 @@ if (-not $?) { throw "Falha a compilar o launcher" }
 $launcherExe = Join-Path $generated "CentralRecepcionistaLauncher.exe"
 if (-not (Test-Path $launcherExe)) { throw "$launcherExe nao existe" }
 
-# ---------------------------------------------------------------- 5. instalador
+# ---------------------------------------------------------------- 5. updater
+Write-Step "Updater"
+& $buildPython -m PyInstaller `
+    --noconfirm --clean --onefile --noconsole `
+    --name "CentralRecepcionistaUpdater" `
+    --distpath $generated `
+    --workpath (Join-Path $buildDir "pyinstaller-updater") `
+    --specpath $buildDir `
+    (Join-Path $projectRoot "updater\updater.py")
+if (-not $?) { throw "Falha a compilar o updater" }
+
+$updaterExe = Join-Path $generated "CentralRecepcionistaUpdater.exe"
+if (-not (Test-Path $updaterExe)) { throw "$updaterExe nao existe" }
+
+# ---------------------------------------------------------------- 6. instalador
 Write-Step "Instalador (Inno Setup)"
 $iscc = Get-IsccPath
 & $iscc (Join-Path $installerDir "CentralRecepcionista.iss")

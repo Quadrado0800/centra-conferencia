@@ -5,6 +5,7 @@ Esta pasta foi criada pelo instalador. Contem:
 
   Central_Recepcionist_conf_plus_printer.exe   A aplicacao (servidor local)
   CentralRecepcionistaLauncher.exe             Arranca e vigia a aplicacao
+  CentralRecepcionistaUpdater.exe              Helper de atualizacao sob demanda
   extension\                                   Extensao do Chrome (por instalar a mao)
   crx\                                         CRX assinado + updates.xml (instalacao automatica)
   logs\launcher.log                            Registo do launcher
@@ -20,6 +21,17 @@ arranca-la se ela cair. Nao feche o launcher.
 
 O launcher serve tambem, em 127.0.0.1:8011, o ficheiro que o Chrome usa para
 instalar a extensao automaticamente.
+
+
+ATUALIZACOES
+------------
+
+O updater nao fica registado como servico do Windows. Quando uma atualizacao
+for solicitada manualmente, ele executa uma copia temporaria de si proprio,
+baixa e verifica o instalador, executa a instalacao e termina. Quando a tarefa
+de arranque esta ativa, uma instancia leve residente aguarda ate as 12:00 locais,
+inicia esse processo unico e termina para permitir a substituicao segura.
+O instalador tambem inicia essa instancia imediatamente apos cada instalacao.
 
 
 A EXTENSAO DO CHROME

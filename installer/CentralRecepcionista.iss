@@ -13,6 +13,7 @@
 #define MyAppPublisher "Uso interno"
 #define MyAppExeName "Central_Recepcionist_conf_plus_printer.exe"
 #define MyAppLauncher "CentralRecepcionistaLauncher.exe"
+#define MyAppUpdater "CentralRecepcionistaUpdater.exe"
 #define MyAppUrl "http://127.0.0.1:8000/"
 #define ChromePolicyKey "SOFTWARE\Policies\Google\Chrome\ExtensionInstallForcelist"
 
@@ -60,6 +61,7 @@ Name: "{app}\extension"; Permissions: users-modify
 [Files]
 Source: "..\dist\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "generated\{#MyAppLauncher}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "generated\{#MyAppUpdater}"; DestDir: "{app}"; Flags: ignoreversion
 ; Extensao por instalar a mao ("Carregar sem compactacao") — mesmo ID do CRX
 ; gracas ao campo "key" injetado no manifest.json.
 Source: "generated\extension\*"; DestDir: "{app}\extension"; Flags: ignoreversion recursesubdirs createallsubdirs
@@ -67,10 +69,12 @@ Source: "generated\extension\*"; DestDir: "{app}\extension"; Flags: ignoreversio
 Source: "generated\{#ExtCrxFile}"; DestDir: "{app}\crx"; Flags: ignoreversion
 Source: "generated\updates.xml"; DestDir: "{app}\crx"; Flags: ignoreversion
 Source: "generated\extension_id.txt"; DestDir: "{app}\crx"; Flags: ignoreversion
+Source: "generated\version.txt"; DestDir: "{app}"; Flags: ignoreversion
 Source: "LEIA-ME.txt"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
 Name: "{commonstartup}\{#MyAppName}"; Filename: "{app}\{#MyAppLauncher}"; WorkingDir: "{app}"; Tasks: startup
+Name: "{commonstartup}\{#MyAppName} - atualizacoes"; Filename: "{app}\{#MyAppUpdater}"; Parameters: "--daemon"; WorkingDir: "{app}"; Tasks: startup
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppLauncher}"; WorkingDir: "{app}"
 Name: "{group}\Abrir no navegador"; Filename: "{#MyAppUrl}"
 Name: "{group}\Instalar a extensao no Chrome (manual)"; Filename: "{app}\{#MyAppLauncher}"; Parameters: "--chrome-extension-help"
@@ -88,6 +92,8 @@ Root: HKLM32; Subkey: "{#ChromePolicyKey}"; ValueType: string; ValueName: "1"; V
 ; Sempre (inclusive em /VERYSILENT): volta a pôr o launcher de pé depois de
 ; substituir os ficheiros, para o app não ficar em baixo até ao próximo logon.
 Filename: "{app}\{#MyAppLauncher}"; Flags: nowait runhidden
+; O updater fica residente e faz uma verificação diária às 12:00 locais.
+Filename: "{app}\{#MyAppUpdater}"; Parameters: "--daemon"; Flags: nowait runhidden
 ; Opcional, só no assistente
 Filename: "{app}\{#MyAppLauncher}"; Parameters: "--chrome-extension-help"; Description: "Abrir o Chrome para confirmar/instalar a extensao"; Flags: postinstall nowait skipifsilent unchecked
 
@@ -128,8 +134,18 @@ begin
     Exec(Launcher, '--stop', '', SW_HIDE, ewWaitUntilTerminated, ResultCode);
 end;
 
+procedure StopUpdater();
+var
+  StopFile: String;
+begin
+  StopFile := ExpandConstant('{app}\.updater-stop');
+  SaveStringToFile(StopFile, 'stop' + #13#10, False);
+  Sleep(2500);
+end;
+
 function PrepareToInstall(var NeedsRestart: Boolean): String;
 begin
+  StopUpdater();
   StopRunningCentral();
   Result := '';
 end;
@@ -137,7 +153,10 @@ end;
 procedure CurUninstallStepChanged(CurUninstallStep: TUninstallStep);
 begin
   if CurUninstallStep = usUninstall then
+  begin
+    StopUpdater();
     StopRunningCentral();
+  end;
 end;
 
 procedure CurStepChanged(CurStep: TSetupStep);
